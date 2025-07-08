@@ -39,7 +39,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login").permitAll()
+                        .requestMatchers("/", "/login", "/api/auth/logout").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/**").hasRole("USER")
                         .anyRequest().authenticated()
@@ -51,12 +51,13 @@ public class SecurityConfig {
                         )
                         .successHandler(oAuth2SuccessHandler)
                 )
+                .logout(logout -> logout.disable())
 
-                .logout(logout -> logout
-                        .logoutSuccessUrl("/")
-                        .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
-                )
+//                .logout(logout -> logout
+//                        .logoutSuccessUrl("/")
+//                        .invalidateHttpSession(true)
+//                        .deleteCookies("JSESSIONID")
+//                )
 
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

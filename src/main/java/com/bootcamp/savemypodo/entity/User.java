@@ -21,6 +21,7 @@ public class User {
     @Column(name = "uid")
     private Long id;
 
+    @Column(nullable = false, unique = true)
     private String email;               // OAuth2 제공 이메일
     private String nickname;                // 사용자 이름
     private String profileImageUrl;     // 프로필 사진 URL
