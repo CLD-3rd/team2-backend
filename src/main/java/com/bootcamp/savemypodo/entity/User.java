@@ -1,12 +1,21 @@
 package com.bootcamp.savemypodo.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Entity
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String email;               // OAuth2 제공 이메일
@@ -20,4 +29,26 @@ public class User {
 
     private LocalDateTime createdAt;    // 가입 시각
     private LocalDateTime updatedAt;    // 마지막 로그인 or 정보 수정 시각
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public static User createOAuthUser(String email, String name, String profileImageUrl, String provider, String providerId) {
+        return User.builder()
+                .email(email)
+                .name(name)
+                .profileImageUrl(profileImageUrl)
+                .provider(provider)
+                .providerId(providerId)
+                .role(Role.USER)
+                .build();
+    }
 }
