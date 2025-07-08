@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 
@@ -13,13 +14,15 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "USERS")
 public class User {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "uid")
     private Long id;
 
     private String email;               // OAuth2 제공 이메일
-    private String name;                // 사용자 이름
+    private String nickname;                // 사용자 이름
     private String profileImageUrl;     // 프로필 사진 URL
     private String provider;            // ex) google, kakao, github
     private String providerId;          // 해당 provider 내 유저 ID
@@ -27,28 +30,19 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;                  // 사용자 역할 (예: USER, ADMIN)
 
-    private LocalDateTime createdAt;    // 가입 시각
-    private LocalDateTime updatedAt;    // 마지막 로그인 or 정보 수정 시각
+    @Enumerated(EnumType.STRING)
+    private SocialType socialType;      // GOOGLE, KAKAO, NAVER
 
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+    private String socialId; // 로그인한 소셜 타입의 식별자 값 (일반 로그인인 경우 null)
+
+    private String refreshToken; // 리프레시 토큰
+
+    // 유저 권한 설정 메소드
+    public void authorizeUser() {
+        this.role = Role.USER;
     }
 
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    public static User createOAuthUser(String email, String name, String profileImageUrl, String provider, String providerId) {
-        return User.builder()
-                .email(email)
-                .name(name)
-                .profileImageUrl(profileImageUrl)
-                .provider(provider)
-                .providerId(providerId)
-                .role(Role.USER)
-                .build();
+    public void updateRefreshToken(String updateRefreshToken) {
+        this.refreshToken = updateRefreshToken;
     }
 }
