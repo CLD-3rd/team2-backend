@@ -1,3 +1,5 @@
+*.properties
+
 ### Eclipse ###
 .metadata
 bin/
