@@ -15,8 +15,4 @@ public enum Role {
     ADMIN("ROLE_ADMIN");
 
     private final String key;
-
-    public List<SimpleGrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority(this.key));
-    }
 }

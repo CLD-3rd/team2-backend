@@ -1,5 +1,6 @@
 package com.bootcamp.savemypodo.config;
 
+import com.bootcamp.savemypodo.entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -32,25 +33,25 @@ public class JwtTokenProvider {
         key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String createAccessToken(String email, String role) {
+    public String createAccessToken(User user) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + accessTokenValidity);
 
         return Jwts.builder()
-                .setSubject(email)
-                .claim("role", role)
+                .setSubject(user.getEmail())
+                .claim("role", user.getRole().name())
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String createRefreshToken(String email) {
+    public String createRefreshToken(User user) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + refreshTokenValidity);
 
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(user.getEmail())
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(key, SignatureAlgorithm.HS256)

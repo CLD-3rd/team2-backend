@@ -29,21 +29,23 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String picture = (String) attributes.get("picture");
         String providerId = (String) attributes.get("sub");
 
+        // 사용자 저장 또는 조회
         User user = userRepository.findByEmail(email)
-                .orElseGet(() -> userRepository.save(User.builder()
-                        .email(email)
-                        .nickname(name)
-                        .profileImageUrl(picture)
-                        .provider("google")
-                        .providerId(providerId)
-                        .role(Role.USER)
-                        .build()
+                .orElseGet(() -> userRepository.save(
+                        User.builder()
+                                .email(email)
+                                .nickname(name)
+                                .profileImageUrl(picture)
+                                .provider("google")
+                                .providerId(providerId)
+                                .role(Role.USER)
+                                .build()
                 ));
 
-        return new DefaultOAuth2User(
-                user.getRole().getAuthorities(),
-                attributes,
-                "email"
+        return new CustomOAuth2User(
+                user.getEmail(),
+                user.getRole(),
+                attributes
         );
     }
 }

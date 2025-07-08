@@ -1,6 +1,7 @@
 package com.bootcamp.savemypodo.config;
 
 import com.bootcamp.savemypodo.service.auth.CustomOAuth2UserService;
+import com.bootcamp.savemypodo.service.auth.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +17,7 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, OAuth2SuccessHandler oAuth2SuccessHandler) throws Exception {
 
         http
                 // CSRF 해제 (API 서버의 경우)
@@ -32,10 +33,11 @@ public class SecurityConfig {
 
                 // OAuth2 로그인 설정
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/login") // 사용자 지정 로그인 페이지 (선택)
+//                        .loginPage("/login") // 사용자 지정 로그인 페이지 (선택)
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService)
                         )
+                        .successHandler(oAuth2SuccessHandler)
                 )
 
                 // 로그아웃 설정
