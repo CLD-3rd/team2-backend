@@ -6,6 +6,7 @@ import com.bootcamp.savemypodo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.stereotype.Service;
@@ -14,31 +15,35 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
 
     @Override
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) {
-        OAuth2User oAuth2User = new DefaultOAuth2UserService().loadUser(userRequest);
-
-        String provider = userRequest.getClientRegistration().getRegistrationId(); // ex) google, github
-        String providerId = oAuth2User.getName(); // OAuth2에서 제공하는 사용자 ID
+    public OAuth2User loadUser(OAuth2UserRequest request) {
+        OAuth2User oAuth2User = super.loadUser(request);
         Map<String, Object> attributes = oAuth2User.getAttributes();
 
         String email = (String) attributes.get("email");
-        String name = (String) attributes.getOrDefault("name", "unknown");
-        String profileImage = (String) attributes.getOrDefault("picture", "");
+        String name = (String) attributes.get("name");
+        String picture = (String) attributes.get("picture");
+        String providerId = (String) attributes.get("sub");
 
-        // 기존 사용자 존재 여부 확인
         User user = userRepository.findByEmail(email)
-                .orElseGet(() -> {
-                    // 새로운 사용자 저장
-                    return userRepository.save(
-                            User.createOAuthUser(email, name, profileImage, provider, providerId)
-                    );
-                });
+                .orElseGet(() -> userRepository.save(User.builder()
+                        .email(email)
+                        .nickname(name)
+                        .profileImageUrl(picture)
+                        .provider("google")
+                        .providerId(providerId)
+                        .role(Role.USER)
+                        .build()
+                ));
 
-        return oAuth2User; // 필요시 커스텀 OAuth2User 반환 가능
+        return new DefaultOAuth2User(
+                user.getRole().getAuthorities(),
+                attributes,
+                "email"
+        );
     }
 }
