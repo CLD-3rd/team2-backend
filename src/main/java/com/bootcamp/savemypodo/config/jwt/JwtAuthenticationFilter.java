@@ -68,9 +68,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     log.warn("❌ Refresh Token 불일치: {}", email);
                     throw new UserException(ErrorCode.REFRESH_TOKEN_MISMATCH);
                 }
+                // 자동 재발급 제거 시
+//                log.warn("⚠️ Access Token 만료 → 자동 재발급 생략됨");
+//                throw new UserException(ErrorCode.ACCESS_TOKEN_EXPIRED);
 
                 // 새로운 Access Token 발급
                 String newAccessToken = jwtTokenProvider.createAccessToken(user);
+                
                 Cookie newAccessTokenCookie = new Cookie("accessToken", newAccessToken);
                 newAccessTokenCookie.setHttpOnly(true);
                 newAccessTokenCookie.setPath("/");
