@@ -81,6 +81,23 @@ public class JwtTokenProvider {
         }
     }
 
+    public boolean isTokenExpired(String token) {
+        try {
+            Date expiration = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getExpiration();
+
+            return expiration.before(new Date());
+        } catch (ExpiredJwtException e) {
+            return true;
+        } catch (JwtException e) {
+            return false; // 다른 예외는 만료가 아님
+        }
+    }
+
     public long getAccessTokenValidity(){
         return accessTokenValidity;
     }
