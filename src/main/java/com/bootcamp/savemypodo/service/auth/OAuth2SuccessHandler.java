@@ -1,6 +1,6 @@
 package com.bootcamp.savemypodo.service.auth;
 
-import com.bootcamp.savemypodo.config.JwtTokenProvider;
+import com.bootcamp.savemypodo.config.jwt.JwtTokenProvider;
 import com.bootcamp.savemypodo.entity.User;
 import com.bootcamp.savemypodo.repository.UserRepository;
 import jakarta.servlet.ServletException;
@@ -23,11 +23,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
-
-    @Value("${jwt.access-token-expiration}")
-    private long accessTokenValidity;
-    @Value("${jwt.refresh-token-expiration}")
-    private long refreshTokenValidity;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -56,12 +51,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
         accessTokenCookie.setHttpOnly(true);
         accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge((int) (accessTokenValidity / 1000)); // milliseconds to seconds
+        accessTokenCookie.setMaxAge((int) (jwtTokenProvider.getAccessTokenValidity() / 1000)); // milliseconds to seconds
 
         Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge((int) (refreshTokenValidity / 1000));
+        refreshTokenCookie.setMaxAge((int) (jwtTokenProvider.getRefreshTokenValidity() / 1000));
 
         response.addCookie(accessTokenCookie);
         response.addCookie(refreshTokenCookie);

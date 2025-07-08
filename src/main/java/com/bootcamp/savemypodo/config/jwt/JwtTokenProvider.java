@@ -1,4 +1,4 @@
-package com.bootcamp.savemypodo.config;
+package com.bootcamp.savemypodo.config.jwt;
 
 import com.bootcamp.savemypodo.entity.User;
 import io.jsonwebtoken.*;
@@ -39,7 +39,7 @@ public class JwtTokenProvider {
 
         return Jwts.builder()
                 .setSubject(user.getEmail())
-                .claim("role", user.getRole().name())
+                .claim("role", user.getRole().getKey())
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -79,5 +79,13 @@ public class JwtTokenProvider {
                  IllegalArgumentException e) {
             return false;
         }
+    }
+
+    public long getAccessTokenValidity(){
+        return accessTokenValidity;
+    }
+
+    public long getRefreshTokenValidity(){
+        return refreshTokenValidity;
     }
 }
