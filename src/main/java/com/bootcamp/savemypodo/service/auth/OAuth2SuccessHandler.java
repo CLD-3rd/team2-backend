@@ -2,6 +2,8 @@ package com.bootcamp.savemypodo.service.auth;
 
 import com.bootcamp.savemypodo.config.jwt.JwtTokenProvider;
 import com.bootcamp.savemypodo.entity.User;
+import com.bootcamp.savemypodo.global.exception.ErrorCode;
+import com.bootcamp.savemypodo.global.exception.UserException;
 import com.bootcamp.savemypodo.repository.UserRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -32,7 +34,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String email = oAuth2User.getEmail();
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("인증된 사용자가 DB에 없습니다."));
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
         // ✅ JWT 발급
         String accessToken = jwtTokenProvider.createAccessToken(user);
@@ -40,8 +42,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         // 👉 로그 출력
         log.info("[OAuth2 Success] 사용자 인증 성공: {}", email);
-        log.info("[JWT AccessToken] {}", accessToken);
-        log.info("[JWT RefreshToken] {}", refreshToken);
 
         // ✅ RefreshToken 저장
         user.updateRefreshToken(refreshToken);

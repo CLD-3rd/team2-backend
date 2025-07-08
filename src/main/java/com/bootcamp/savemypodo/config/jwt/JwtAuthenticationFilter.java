@@ -1,5 +1,7 @@
 package com.bootcamp.savemypodo.config.jwt;
 
+import com.bootcamp.savemypodo.global.exception.ErrorCode;
+import com.bootcamp.savemypodo.global.exception.UserException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -70,6 +72,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         } else {
             log.warn("❗ 유효한 토큰이 존재하지 않음");
+            throw new UserException(ErrorCode.INVALID_TOKEN);
         }
 
         filterChain.doFilter(request, response);
@@ -96,6 +99,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             log.info("🔐 사용자 인증 성공: {}", email);
         } else {
             log.warn("❌ 토큰에서 사용자 정보를 찾을 수 없음: {}", email);
+            throw new UserException(ErrorCode.USER_NOT_FOUND);
         }
     }
 }

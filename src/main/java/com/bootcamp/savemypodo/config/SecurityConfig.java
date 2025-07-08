@@ -11,6 +11,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -36,7 +39,14 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, OAuth2SuccessHandler oAuth2SuccessHandler, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
 
         http
-                .cors()
+                .cors(cors -> cors.configurationSource(request -> {
+                    CorsConfiguration config = new CorsConfiguration();
+                    config.setAllowedOrigins(List.of("http://localhost:3000")); // 프론트 주소
+                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    config.setAllowedHeaders(List.of("*"));
+                    config.setAllowCredentials(true);
+                    return config;
+                }))
                 .csrf(csrf -> csrf.disable())
 
                 .authorizeHttpRequests(auth -> auth
