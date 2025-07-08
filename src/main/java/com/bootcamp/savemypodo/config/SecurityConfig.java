@@ -36,6 +36,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, OAuth2SuccessHandler oAuth2SuccessHandler, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
 
         http
+                .cors()
                 .csrf(csrf -> csrf.disable())
 
                 .authorizeHttpRequests(auth -> auth
