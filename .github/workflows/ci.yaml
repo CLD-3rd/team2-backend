@@ -2,6 +2,9 @@ name: CI - Build and Push
 
 on:
   workflow_dispatch:
+    branches:
+      - dev
+      - ci/*
 #  push:
 #    branches:
 #      - main
