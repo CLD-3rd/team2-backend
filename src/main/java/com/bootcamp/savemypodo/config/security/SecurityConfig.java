@@ -51,12 +51,13 @@ public class SecurityConfig {
                     config.setAllowCredentials(true);
                     return config;
                 }))
+                
                 .csrf(csrf -> csrf.disable())
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login").permitAll()
+                        .requestMatchers("/", "/login", "/api/performances/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/user/**").hasRole("USER")
+                        .requestMatchers("/api/user/**", "/api/reservations/**").hasRole("USER")
                         .anyRequest().authenticated()
                 )
 
@@ -68,12 +69,6 @@ public class SecurityConfig {
                         .failureHandler(oAuth2FailureHandler)
                 )
                 .logout(logout -> logout.disable())
-
-//                .logout(logout -> logout
-//                        .logoutSuccessUrl("/")
-//                        .invalidateHttpSession(true)
-//                        .deleteCookies("JSESSIONID")
-//                )
 
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
