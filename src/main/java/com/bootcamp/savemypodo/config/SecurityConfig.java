@@ -4,6 +4,7 @@ import com.bootcamp.savemypodo.config.jwt.JwtAuthenticationFilter;
 import com.bootcamp.savemypodo.service.auth.CustomOAuth2UserService;
 import com.bootcamp.savemypodo.service.auth.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,6 +22,9 @@ import java.util.List;
 public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
+
+    @Value("${app.base-url}")
+    private String baseUrl;
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
@@ -41,7 +45,7 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of("http://localhost:3000")); // 프론트 주소
+                    config.setAllowedOrigins(List.of(baseUrl)); // 프론트 주소
                     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     config.setAllowedHeaders(List.of("*"));
                     config.setAllowCredentials(true);

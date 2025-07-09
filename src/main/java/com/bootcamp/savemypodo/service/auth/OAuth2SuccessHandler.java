@@ -26,6 +26,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
 
+    @Value("${app.base-url}")
+    private String baseUrl;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
@@ -62,6 +65,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         response.addCookie(refreshTokenCookie);
 
         // ✅ 리디렉션
-        response.sendRedirect("/"); // 또는 프론트 주소로 redirect (ex. http://localhost:3000)
+        response.sendRedirect(baseUrl); // 또는 프론트 주소로 redirect (ex. http://localhost:3000)
     }
 }
