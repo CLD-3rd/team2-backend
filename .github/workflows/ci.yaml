@@ -37,10 +37,9 @@ jobs:
       - name: Make application.properties
         run: |
           mkdir -p ./src/main/resources
-          echo "${{ secrets.PROPERTIES }}" | base64 -d > ./src/main/resources/application.properties
-#          cd ./src/main/resources
-#          touch ./application.properties
-#          echo "${{ secrets.PROPERTIES }}" > ./application.properties
+#          echo "${{ secrets.PROPERTIES }}" | base64 -d > ./src/main/resources/application.properties
+          touch ./src/main/resources/application.properties
+          echo "${{ secrets.PROPERTIES }}" > ./src/main/resources/application.properties
         shell: bash
 
       - name: Build with Maven
