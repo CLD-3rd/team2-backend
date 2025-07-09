@@ -1,10 +1,11 @@
 name: CI - Build and Push
 
 on:
-  workflow_dispatch:
+  pull_request:
     branches:
+      - main
       - dev
-      - ci/*
+  workflow_dispatch:
 #  push:
 #    branches:
 #      - main
