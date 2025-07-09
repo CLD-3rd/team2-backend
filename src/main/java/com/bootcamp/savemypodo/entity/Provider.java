@@ -1,5 +1,5 @@
 package com.bootcamp.savemypodo.entity;
 
-public enum SocialType {
+public enum Provider {
     GOOGLE, KAKAO, NAVER
 }

@@ -25,14 +25,15 @@ public class User {
     private String email;               // OAuth2 제공 이메일
     private String nickname;                // 사용자 이름
     private String profileImageUrl;     // 프로필 사진 URL
-    private String provider;            // ex) google, kakao, github
+
+    @Enumerated(EnumType.STRING)
+    private Provider provider;        // ex) google, kakao, github
     private String providerId;          // 해당 provider 내 유저 ID
 
     @Enumerated(EnumType.STRING)
     private Role role;                  // 사용자 역할 (예: USER, ADMIN)
 
-    @Enumerated(EnumType.STRING)
-    private SocialType socialType;      // GOOGLE, KAKAO, NAVER
+        // GOOGLE, KAKAO, NAVER
 
     private String refreshToken; // 리프레시 토큰
 

@@ -74,7 +74,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 // 새로운 Access Token 발급
                 String newAccessToken = jwtTokenProvider.createAccessToken(user);
-                
+
                 Cookie newAccessTokenCookie = new Cookie("accessToken", newAccessToken);
                 newAccessTokenCookie.setHttpOnly(true);
                 newAccessTokenCookie.setPath("/");

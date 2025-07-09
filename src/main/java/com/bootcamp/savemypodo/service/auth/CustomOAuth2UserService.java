@@ -1,5 +1,6 @@
 package com.bootcamp.savemypodo.service.auth;
 
+import com.bootcamp.savemypodo.entity.Provider;
 import com.bootcamp.savemypodo.entity.User;
 import com.bootcamp.savemypodo.entity.Role;
 import com.bootcamp.savemypodo.repository.UserRepository;
@@ -36,7 +37,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                                 .email(email)
                                 .nickname(name)
                                 .profileImageUrl(picture)
-                                .provider("google")
+                                .provider(Provider.GOOGLE)
                                 .providerId(providerId)
                                 .role(Role.USER)
                                 .build()
