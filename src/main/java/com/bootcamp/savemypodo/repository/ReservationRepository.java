@@ -1,9 +1,12 @@
 package com.bootcamp.savemypodo.repository;
 
+import com.bootcamp.savemypodo.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 
 import com.bootcamp.savemypodo.entity.Reservation;
+
+import java.util.List;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
@@ -15,4 +18,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     
     // 예매 취소
     void deleteByUser_IdAndPerformance_Pid(@Param("uid") Long uid, @Param("pid") Long pid);
+
+    // 해당 유저가 예매한 내역 반환
+    List<Reservation> findAllByUser(User user);
 }
