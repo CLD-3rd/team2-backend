@@ -2,6 +2,7 @@ package com.bootcamp.savemypodo.config;
 
 import com.bootcamp.savemypodo.config.jwt.JwtAuthenticationFilter;
 import com.bootcamp.savemypodo.service.auth.CustomOAuth2UserService;
+import com.bootcamp.savemypodo.service.auth.OAuth2FailureHandler;
 import com.bootcamp.savemypodo.service.auth.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,7 +41,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, OAuth2SuccessHandler oAuth2SuccessHandler, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, OAuth2SuccessHandler oAuth2SuccessHandler, OAuth2FailureHandler oAuth2FailureHandler,
+                                           JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
 
         http
                 .cors(cors -> cors.configurationSource(request -> {
@@ -65,6 +67,7 @@ public class SecurityConfig {
                                 .userService(customOAuth2UserService)
                         )
                         .successHandler(oAuth2SuccessHandler)
+                        .failureHandler(oAuth2FailureHandler)
                 )
                 .logout(logout -> logout.disable())
 
