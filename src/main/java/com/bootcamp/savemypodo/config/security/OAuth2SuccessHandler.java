@@ -1,10 +1,11 @@
-package com.bootcamp.savemypodo.service.auth;
+package com.bootcamp.savemypodo.config.security;
 
 import com.bootcamp.savemypodo.config.jwt.JwtTokenProvider;
 import com.bootcamp.savemypodo.entity.User;
 import com.bootcamp.savemypodo.global.exception.ErrorCode;
 import com.bootcamp.savemypodo.global.exception.UserException;
 import com.bootcamp.savemypodo.repository.UserRepository;
+import com.bootcamp.savemypodo.entity.CustomOAuth2User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,9 +1,7 @@
-package com.bootcamp.savemypodo.config;
+package com.bootcamp.savemypodo.config.security;
 
 import com.bootcamp.savemypodo.config.jwt.JwtAuthenticationFilter;
-import com.bootcamp.savemypodo.service.auth.CustomOAuth2UserService;
-import com.bootcamp.savemypodo.service.auth.OAuth2FailureHandler;
-import com.bootcamp.savemypodo.service.auth.OAuth2SuccessHandler;
+import com.bootcamp.savemypodo.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

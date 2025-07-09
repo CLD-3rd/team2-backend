@@ -1,15 +1,14 @@
-package com.bootcamp.savemypodo.service.auth;
+package com.bootcamp.savemypodo.service;
 
-import com.bootcamp.savemypodo.entity.Provider;
+import com.bootcamp.savemypodo.entity.CustomOAuth2User;
+import com.bootcamp.savemypodo.global.enums.Provider;
 import com.bootcamp.savemypodo.entity.User;
-import com.bootcamp.savemypodo.entity.Role;
+import com.bootcamp.savemypodo.global.enums.Role;
 import com.bootcamp.savemypodo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;

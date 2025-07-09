@@ -1,6 +1,6 @@
-package com.bootcamp.savemypodo.service.auth;
+package com.bootcamp.savemypodo.entity;
 
-import com.bootcamp.savemypodo.entity.Role;
+import com.bootcamp.savemypodo.global.enums.Role;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

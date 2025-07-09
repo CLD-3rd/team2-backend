@@ -1,4 +1,4 @@
-package com.bootcamp.savemypodo.service.auth;
+package com.bootcamp.savemypodo.config.security;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

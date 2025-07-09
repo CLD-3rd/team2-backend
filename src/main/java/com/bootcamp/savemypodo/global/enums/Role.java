@@ -1,4 +1,4 @@
-package com.bootcamp.savemypodo.entity;
+package com.bootcamp.savemypodo.global.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

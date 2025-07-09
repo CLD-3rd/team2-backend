@@ -1,4 +1,4 @@
-package com.bootcamp.savemypodo.entity;
+package com.bootcamp.savemypodo.global.enums;
 
 public enum Provider {
     GOOGLE, KAKAO, NAVER
