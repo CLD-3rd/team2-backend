@@ -2,7 +2,7 @@ package com.bootcamp.savemypodo.service;
 
 import org.springframework.stereotype.Service;
 
-import com.bootcamp.savemypodo.dto.reservation.ReservationDto;
+import com.bootcamp.savemypodo.dto.reservation.ReservationRequestDto;
 import com.bootcamp.savemypodo.entity.Performance;
 import com.bootcamp.savemypodo.entity.Reservation;
 import com.bootcamp.savemypodo.entity.Seat;
@@ -25,7 +25,7 @@ public class ReservationService {
     private final PerformanceRepository performanceRepository;
 
     @Transactional
-    public void reserveSeat(ReservationDto request) {
+    public void reserveSeat(ReservationRequestDto request) {
         // 1. 좌석 찾기
         Seat seat = seatRepository.findByPerformance_PidAndSid(request.pid(), request.sid())
                 .orElseThrow(() -> new RuntimeException("해당 좌석을 찾을 수 없습니다."));
