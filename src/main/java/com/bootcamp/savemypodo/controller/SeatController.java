@@ -1,5 +1,6 @@
 package com.bootcamp.savemypodo.controller;
 
+import com.bootcamp.savemypodo.dto.seat.SeatResponse;
 import com.bootcamp.savemypodo.entity.Seat;
 import com.bootcamp.savemypodo.service.SeatService;
 import lombok.RequiredArgsConstructor;

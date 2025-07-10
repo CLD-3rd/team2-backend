@@ -5,6 +5,9 @@ import com.bootcamp.savemypodo.entity.Musical;
 import com.bootcamp.savemypodo.entity.Reservation;
 import com.bootcamp.savemypodo.entity.Seat;
 import com.bootcamp.savemypodo.entity.User;
+import com.bootcamp.savemypodo.global.exception.ErrorCode;
+import com.bootcamp.savemypodo.global.exception.MusicalException;
+import com.bootcamp.savemypodo.global.exception.ReservationException;
 import com.bootcamp.savemypodo.repository.MusicalRepository;
 import com.bootcamp.savemypodo.repository.ReservationRepository;
 import com.bootcamp.savemypodo.repository.SeatRepository;
@@ -21,11 +24,16 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
+
     private final MusicalRepository musicalRepository;
     private final ReservationRepository reservationRepository;
     private final SeatRepository seatRepository;
 
-    public Reservation createReservation(User user, Long mid, String seatName) {
+    @Transactional
+    public void createReservation(User user, Long mid, String seatName) {
+
+        // + 해당 유저가 이미 해당 Musical 좌석을 예약 했는지 Check!
+
         Character row = seatName.charAt(0);
         Integer column;
         try {
@@ -35,26 +43,29 @@ public class ReservationService {
         }
         Optional<Seat> existingSeat = seatRepository.findByMusicalIdAndRowAndColumn(mid, row, column);
         if (existingSeat.isPresent()) {
-            throw new IllegalStateException("이미 해당 좌석을 예약하셨습니다.");
+            throw new ReservationException(ErrorCode.SEAT_ALREADY_RESERVED);
         }
 
-        Musical musical = performanceRepository.findById(mid)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 뮤지컬입니다."));
+        Musical musical = musicalRepository.findById(mid)
+                .orElseThrow(() -> new MusicalException(ErrorCode.MUSICAL_NOT_FOUND));
 
         // 새로운 좌석 생성 및 저장
-        Seat newSeat = new Seat();
-        newSeat.setMusical(musical);
-        newSeat.setRow(row);
-        newSeat.setColumn(column);
-        seatRepository.save(newSeat);
+        Seat seat = Seat.builder()
+                .musical(musical)
+                .row(row)
+                .column(column)
+                .build();
+        seatRepository.save(seat);
 
         // 예약 생성
-        Reservation reservation = new Reservation();
-        reservation.setUser(user);
-        reservation.setMusical(musical);
-        reservation.setSeat(newSeat);
+        Reservation reservation = Reservation.builder()
+                .user(user)
+                .musical(musical)
+                .seat(seat)
+                .build();
         reservationRepository.save(reservation);
-        return reservationRepository.save(reservation);
+
+        // + 공연의 reservedCount 증가 로직 추가!
     }
 
     public List<MyReservationResponse> getMyReservationsByUser(User user) {

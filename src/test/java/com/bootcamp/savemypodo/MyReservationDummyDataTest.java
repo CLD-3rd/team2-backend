@@ -48,31 +48,34 @@ public class MyReservationDummyDataTest {
 
         for (int i = 1; i <= 3; i++) {
             // 뮤지컬 생성
-            Musical musical = new Musical();
-            musical.setTitle("뮤지컬 " + i);
-            musical.setPosterUrl("/images/musical" + i + ".jpg");
-            musical.setStartTime(LocalTime.of(14 + i, 0));
-            musical.setEndTime(LocalTime.of(16 + i, 30));
-            musical.setDate(LocalDate.of(2025, 8, i));
-            musical.setDescription("설명 " + i);
-            musical.setPrice(70000L + (i * 5000));
-            musical.setLocation("서울극장 " + i);
-            musical.setDuration(120L + (i * 10));
-            musical.setReservedCount(0L);
+            Musical musical = Musical.builder()
+                    .title("뮤지컬 " + i)
+                    .posterUrl("/images/musical" + i + ".jpg")
+                    .startTime(LocalTime.of(14 + i, 0))
+                    .endTime(LocalTime.of(16 + i, 30))
+                    .date(LocalDate.of(2025, 8, i))
+                    .description("설명 " + i)
+                    .price(70000L + (i * 5000))
+                    .location("서울극장 " + i)
+                    .duration(120L + (i * 10))
+                    .reservedCount(0L)
+                    .build();
             musicalRepository.save(musical);
 
             // 좌석 생성
-            Seat seat = new Seat();
-            seat.setMusical(musical);
-            seat.setRow((char) ('A' + i));
-            seat.setColumn(i);
+            Seat seat = Seat.builder()
+                    .musical(musical)
+                    .row((char) ('A' + i))
+                    .column(i)
+                    .build();
             seatRepository.save(seat);
 
             // 예약 생성
-            Reservation reservation = new Reservation();
-            reservation.setUser(user1);
-            reservation.setMusical(musical);
-            reservation.setSeat(seat);
+            Reservation reservation = Reservation.builder()
+                    .user(user1)
+                    .musical(musical)
+                    .seat(seat)
+                    .build();
             reservationRepository.save(reservation);
         }
     }

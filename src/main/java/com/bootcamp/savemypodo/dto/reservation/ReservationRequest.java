@@ -1,4 +1,4 @@
 package com.bootcamp.savemypodo.dto.reservation;
 
-public record ReservationRequest(String sid) {
+public record ReservationRequest(String seatId) {
 }
