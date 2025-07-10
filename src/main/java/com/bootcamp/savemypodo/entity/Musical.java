@@ -27,16 +27,18 @@ public class Musical {
 	private Long id;
 	private String title;
 	
-	@Column(name = "posterurl")
+
+	@Column(name = "poster_url")
 	private String posterUrl ;
-	private LocalTime starttime;
-	private LocalTime endtime;
+	private LocalTime startTime;
+	private LocalTime endTime;
 	private String description ;
 	private LocalDate date;
 	private Long price;
 	private String location;
 	private Long duration;
-	private Long reserved_count;
+	private Long reservedCount;
 	
 	
 }
+

@@ -5,17 +5,21 @@ import com.bootcamp.savemypodo.entity.Reservation;
 import com.bootcamp.savemypodo.entity.Seat;
 import com.bootcamp.savemypodo.entity.User;
 import com.bootcamp.savemypodo.repository.PerformanceRepository;
+import com.bootcamp.savemypodo.dto.reservation.MyReservationResponse;
 import com.bootcamp.savemypodo.repository.ReservationRepository;
 import com.bootcamp.savemypodo.repository.SeatRepository;
 import com.bootcamp.savemypodo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import java.util.Optional;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -57,5 +61,12 @@ public class ReservationService {
         reservationRepository.save(reservation);
         return reservationRepository.save(reservation);
     }
+  public List<MyReservationResponse> getMyReservationsByUser(User user) {
+        List<Reservation> reservations = reservationRepository.findAllByUser(user);
+        return reservations.stream()
+                .map(MyReservationResponse::fromEntity)
+                .collect(Collectors.toList());
+    }
 }
+
 

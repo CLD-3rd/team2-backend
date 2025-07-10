@@ -1,41 +1,70 @@
 package com.bootcamp.savemypodo.controller;
 
 import com.bootcamp.savemypodo.entity.Reservation;
+import com.bootcamp.savemypodo.entity.User;
+import com.bootcamp.savemypodo.repository.MusicalRepository;
+import com.bootcamp.savemypodo.repository.ReservationRepository;
 import com.bootcamp.savemypodo.service.ReservationService;
+
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
-import com.bootcamp.savemypodo.entity.User;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/musicals")
 @RequiredArgsConstructor
 public class ReservationController {
 
-	private final ReservationService reservationService;
-	
-    @PostMapping("/{musicalId}/seats")
+    private final ReservationService reservationService;
+    private final ReservationRepository reservationRepository;
+    private final MusicalRepository musicalRepository;
+
+    // 예매 등록
+    @PostMapping("/api/musicals/{musicalId}/seats")
     public ResponseEntity<?> createReservation(
             @PathVariable("musicalId") Long musicalId,
             @RequestBody ReservationRequest request,
             @AuthenticationPrincipal User user
     ) {
-        reservationService.createReservation(user, musicalId,request.getSid());
+        reservationService.createReservation(user, musicalId, request.getSid());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ReservationResponse("성공적으로 예약이 되었습니다."));
     }
 
+    //예매 취소
+    @DeleteMapping("/api/reservations/{pid}")
+    public ResponseEntity<Void> cancelReservation(
+            @PathVariable Long pid,
+            Authentication authentication) {
+
+        Long userId = null;
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof User user) {
+                userId = user.getId();
+            }
+        }
+
+        if (userId == null) {
+            return ResponseEntity.status(401).build(); // 인증 실패
+        }
+
+        boolean exists = reservationRepository.existsByUser_IdAndPerformance_Pid(userId, pid);
+        if (!exists) {
+            return ResponseEntity.status(404).build(); // 예매 기록 없음
+        }
+
+        reservationRepository.deleteByUser_IdAndPerformance_Pid(userId, pid);
+        return ResponseEntity.noContent().build(); // 성공적으로 삭제됨
+    }
+
     @Data
     static class ReservationRequest {
-        private String sid;      // 좌석 ID
+        private String sid; // 좌석 ID
     }
 
     @Data
@@ -43,3 +72,4 @@ public class ReservationController {
         private final String message;
     }
 }
+

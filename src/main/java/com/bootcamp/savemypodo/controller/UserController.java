@@ -1,8 +1,10 @@
 package com.bootcamp.savemypodo.controller;
 
+import com.bootcamp.savemypodo.dto.reservation.MyReservationResponse;
 import com.bootcamp.savemypodo.dto.user.UserResponse;
 import com.bootcamp.savemypodo.entity.User;
 import com.bootcamp.savemypodo.repository.UserRepository;
+import com.bootcamp.savemypodo.service.ReservationService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -13,12 +15,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserRepository userRepository;
+    private final ReservationService reservationService;
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@AuthenticationPrincipal User user,
@@ -48,4 +53,11 @@ public class UserController {
     public UserResponse getMyInfo(@AuthenticationPrincipal User user) {
         return new UserResponse(user.getEmail(), user.getNickname(), user.getRole().name());
     }
+
+    @GetMapping("/my-reservations")
+    public ResponseEntity<List<MyReservationResponse>> getMyReservations(@AuthenticationPrincipal User user) {
+        List<MyReservationResponse> myReservations = reservationService.getMyReservationsByUser(user);
+        return ResponseEntity.ok(myReservations);
+    }
+
 }
