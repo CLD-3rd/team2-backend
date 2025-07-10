@@ -4,6 +4,8 @@ import com.bootcamp.savemypodo.dto.reservation.MyReservationResponse;
 import com.bootcamp.savemypodo.entity.Reservation;
 import com.bootcamp.savemypodo.entity.User;
 import com.bootcamp.savemypodo.repository.ReservationRepository;
+
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,5 +23,10 @@ public class ReservationService {
         return reservations.stream()
                 .map(MyReservationResponse::fromEntity)
                 .collect(Collectors.toList());
+    }
+    
+    @Transactional
+    public void cancelReservation(Long userId, Long musicalId) {
+        reservationRepository.deleteByUser_IdAndMusical_Id(userId, musicalId);
     }
 }

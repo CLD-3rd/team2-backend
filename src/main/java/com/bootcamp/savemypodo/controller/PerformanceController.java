@@ -11,9 +11,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.bootcamp.savemypodo.dto.performance.MusicalResponseDto;
-import com.bootcamp.savemypodo.entity.PerformanceSortType;
+import com.bootcamp.savemypodo.dto.musical.MusicalResponse;
+//import com.bootcamp.savemypodo.entity.MusicalSortType;
 import com.bootcamp.savemypodo.entity.User;
+import com.bootcamp.savemypodo.global.enums.SortType;
 import com.bootcamp.savemypodo.service.PerformanceService;
 
 import lombok.RequiredArgsConstructor;
@@ -26,10 +27,9 @@ public class PerformanceController {
     private final PerformanceService performanceService;
 
     @GetMapping("/musicals")
-    public ResponseEntity<List<MusicalResponseDto>> getPerformances(
+    public ResponseEntity<List<MusicalResponse>> getMusicals(
             @RequestParam(name = "sort", defaultValue = "latest") String sortParam) {
 
-        PerformanceSortType sort;
         Long userId = null;
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -40,13 +40,14 @@ public class PerformanceController {
             }
         }
 
-        switch (sortParam.toLowerCase()) {
-            case "most-reserved" -> sort = PerformanceSortType.MOST_RESERVED;
-            case "my-reservations" -> sort = PerformanceSortType.MINE;
-            default -> sort = PerformanceSortType.LATEST;
+        SortType sort;
+        try {
+            sort = SortType.from(sortParam);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null); // 또는 에러 메시지 DTO로
         }
 
-        List<MusicalResponseDto> response = performanceService.getPerformances(sort, userId);
+        List<MusicalResponse> response = performanceService.getPerformances(sort, userId);
         return ResponseEntity.ok(response);
     }
 }

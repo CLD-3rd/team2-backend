@@ -1,7 +1,6 @@
 package com.bootcamp.savemypodo.entity;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import jakarta.persistence.Column;
@@ -10,7 +9,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,12 +23,12 @@ public class Musical {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
-	private Long mid;
+	private Long id;
 	private String title;
 	
 	@Column(name = "poster_url")
 	private String posterUrl ;
-	
+
 	@Column(name = "start_time")
 	private LocalTime startTime;
 	

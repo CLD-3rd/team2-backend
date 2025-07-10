@@ -9,9 +9,8 @@ import org.springframework.stereotype.Repository;
 
 import com.bootcamp.savemypodo.entity.Musical;
 
-
 @Repository
-public interface PerformanceRepository extends JpaRepository<Musical, Long> {
+public interface MusicalRepository extends JpaRepository<Musical, Long> {
 	
 	// 공연 테이블에서 공연을 최신순으로 정렬
 	@Query("SELECT m FROM Musical m ORDER BY m.date DESC")

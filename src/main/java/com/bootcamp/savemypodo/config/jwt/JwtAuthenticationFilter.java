@@ -33,6 +33,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
+        String uri = request.getRequestURI();
+        if (uri.equals("/") || uri.startsWith("/login")) {
+        	filterChain.doFilter(request, response); // 그냥 통과
+            return;
+        }
 
         String accessToken = getTokenFromCookie(request, "accessToken");
         String refreshToken = getTokenFromCookie(request, "refreshToken");

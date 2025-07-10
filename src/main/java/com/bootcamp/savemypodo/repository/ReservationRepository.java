@@ -14,16 +14,16 @@ import com.bootcamp.savemypodo.entity.Reservation;
 import java.util.List;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
-
-	// 공연 ID로 예약된 row 개수 반환
-    int countByMusical_Mid(Long mid);
-    
-    // 해당 유저가 해당 공연을 예매했는지
-    boolean existsByUser_IdAndMusical_Mid(Long id, Long mid);  
     
     // 예매 취소
-    @Modifying
-    @Transactional
-    @Query("DELETE FROM Reservation r WHERE r.user.id = :id AND r.musical.id = :mid")
-    void deleteByUser_IdAndMusical_Mid(@Param("id") Long id, @Param("mid") Long mid);
+	void deleteByUser_IdAndMusical_Id(Long userId, Long musicalId);
+
+
+//    // 해당 유저가 해당 공연을 예매했는지
+//    boolean existsByUser_IdAndPerformance_Pid(Long uid, Long pid);
+
+
+    // 해당 유저가 예매한 내역 반환
+    List<Reservation> findAllByUser(User user);
+
 }
