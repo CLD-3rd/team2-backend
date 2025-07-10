@@ -1,5 +1,6 @@
 package com.bootcamp.savemypodo.entity;
 
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,6 +18,7 @@ import lombok.Setter;
 @Table(name = "Seats")
 public class Seat {
 
+
     @Id 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,3 +32,9 @@ public class Seat {
     
     private int column;
 }
+
+
+
+ 
+
+

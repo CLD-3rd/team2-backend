@@ -1,7 +1,7 @@
 package com.bootcamp.savemypodo.dto.performance;
 
 import java.time.LocalDateTime;
-import com.bootcamp.savemypodo.entity.Performance;
+import com.bootcamp.savemypodo.entity.Musical;
 
 public record PerformanceResponseDto(
         Long pid,

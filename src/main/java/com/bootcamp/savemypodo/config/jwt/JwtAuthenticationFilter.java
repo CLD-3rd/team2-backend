@@ -90,8 +90,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
         } catch (UserException e) {
-            log.error("❌ 인증 실패: {}", e.getErrorCode().getMessage());
-            throw e; // GlobalExceptionHandler로 전파
+            log.warn("🚫 [JWT Filter] UserException 발생 - {}: {}", e.getErrorCode(), e.getMessage());
+            setErrorResponse(response, e.getErrorCode(), request.getRequestURI());
+            return; // ❗ 더 이상 필터 체인을 진행하지 않음
         }
 
         filterChain.doFilter(request, response);
@@ -116,5 +117,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         log.info("🔐 사용자 인증 성공: {}", email);
+    }
+
+    private void setErrorResponse(HttpServletResponse response, ErrorCode errorCode, String path) throws IOException {
+        response.setStatus(errorCode.getStatus().value());
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        String body = String.format("""
+        {
+          "status": %d,
+          "error": "%s",
+          "path": "%s"
+        }
+        """, errorCode.getStatus().value(), errorCode.getMessage(), path);
+
+        response.getWriter().write(body);
     }
 }

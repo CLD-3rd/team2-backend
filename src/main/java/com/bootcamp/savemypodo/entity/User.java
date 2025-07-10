@@ -32,8 +32,6 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;                  // 사용자 역할 (예: USER, ADMIN)
 
-        // GOOGLE, KAKAO, NAVER
-
     private String refreshToken; // 리프레시 토큰
 
     // 유저 권한 설정 메소드
