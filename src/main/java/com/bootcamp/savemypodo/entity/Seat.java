@@ -1,6 +1,5 @@
 package com.bootcamp.savemypodo.entity;
 
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -21,12 +20,13 @@ public class Seat {
 
     @Id 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @ManyToOne
     @JoinColumn(name = "mid",referencedColumnName = "id")
     private Musical musical;
-  
+
     @Column(name = "seat_row", length = 1)
     private Character row;
 

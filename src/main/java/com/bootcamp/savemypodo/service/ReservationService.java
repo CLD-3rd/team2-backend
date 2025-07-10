@@ -4,9 +4,13 @@ import com.bootcamp.savemypodo.entity.Musical;
 import com.bootcamp.savemypodo.entity.Reservation;
 import com.bootcamp.savemypodo.entity.Seat;
 import com.bootcamp.savemypodo.entity.User;
+import com.bootcamp.savemypodo.repository.MusicalRepository;
 import com.bootcamp.savemypodo.repository.PerformanceRepository;
 import com.bootcamp.savemypodo.dto.reservation.MyReservationResponse;
 import com.bootcamp.savemypodo.repository.ReservationRepository;
+
+import jakarta.transaction.Transactional;
+
 import com.bootcamp.savemypodo.repository.SeatRepository;
 import com.bootcamp.savemypodo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.Optional;
 
@@ -24,7 +29,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
-
+	private final MusicalRepository musicalRepository;
     private final ReservationRepository reservationRepository;
     private final SeatRepository seatRepository;
     private final UserRepository userRepository;
@@ -66,6 +71,27 @@ public class ReservationService {
         return reservations.stream()
                 .map(MyReservationResponse::fromEntity)
                 .collect(Collectors.toList());
+    }
+    
+    @Transactional
+    public void cancelReservation(Long userId, Long musicalId) {
+    	// 1. 먼저 예약이 실제로 존재하는지 확인
+        Optional<Reservation> reservationOpt = reservationRepository.findByUser_IdAndMusical_Id(userId, musicalId);
+
+        if (reservationOpt.isEmpty()) {
+            throw new NoSuchElementException("해당 예매 내역이 존재하지 않습니다.");
+        }
+
+        // 2. 예매 삭제
+        reservationRepository.deleteByUser_IdAndMusical_Id(userId, musicalId);
+
+        // 3. reservedCount(예약자 수) 감소
+        Musical musical = musicalRepository.findById(musicalId)
+                .orElseThrow(() -> new NoSuchElementException("해당 뮤지컬이 존재하지 않습니다."));
+
+        int updatedCount = Math.max(0, (int) (musical.getReservedCount() - 1)); // 음수 방지
+        musical.setReservedCount((long)updatedCount);
+        musicalRepository.save(musical);
     }
 }
 

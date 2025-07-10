@@ -1,9 +1,12 @@
 package com.bootcamp.savemypodo.controller;
 
-import com.bootcamp.savemypodo.entity.Reservation;
+
+import com.bootcamp.savemypodo.entity.Musical;
 import com.bootcamp.savemypodo.entity.User;
+import com.bootcamp.savemypodo.entity.Reservation;
 import com.bootcamp.savemypodo.repository.MusicalRepository;
 import com.bootcamp.savemypodo.repository.ReservationRepository;
+
 import com.bootcamp.savemypodo.service.ReservationService;
 
 import lombok.Data;
@@ -36,12 +39,13 @@ public class ReservationController {
     }
 
     //예매 취소
-    @DeleteMapping("/api/reservations/{pid}")
-    public ResponseEntity<Void> cancelReservation(
-            @PathVariable Long pid,
+    @DeleteMapping("/api/reservations/{reservationId}")
+    public ResponseEntity<ReservationResponse> cancelReservation(
+            @PathVariable("reservationId") Musical musical,
             Authentication authentication) {
 
         Long userId = null;
+
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
             if (principal instanceof User user) {
@@ -53,13 +57,8 @@ public class ReservationController {
             return ResponseEntity.status(401).build(); // 인증 실패
         }
 
-        boolean exists = reservationRepository.existsByUser_IdAndPerformance_Pid(userId, pid);
-        if (!exists) {
-            return ResponseEntity.status(404).build(); // 예매 기록 없음
-        }
-
-        reservationRepository.deleteByUser_IdAndPerformance_Pid(userId, pid);
-        return ResponseEntity.noContent().build(); // 성공적으로 삭제됨
+        reservationService.cancelReservation(userId, musical.getId());
+        return ResponseEntity.ok(new ReservationResponse("성공적으로 취소 되었습니다."));
     }
 
     @Data
@@ -72,4 +71,3 @@ public class ReservationController {
         private final String message;
     }
 }
-
