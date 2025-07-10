@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.bootcamp.savemypodo.dto.performance.PerformanceResponseDto;
+import com.bootcamp.savemypodo.dto.performance.MusicalResponseDto;
 import com.bootcamp.savemypodo.entity.PerformanceSortType;
 import com.bootcamp.savemypodo.entity.User;
 import com.bootcamp.savemypodo.service.PerformanceService;
@@ -22,28 +22,31 @@ import lombok.RequiredArgsConstructor;
 @Controller
 @RequestMapping("/api")
 public class PerformanceController {
-	
-	private final PerformanceService performanceService;
-	
-	@GetMapping("/performances")
-    @ResponseBody
-    public List<PerformanceResponseDto> getPerformances(
-            @RequestParam(defaultValue = "LATEST") PerformanceSortType sort) {
 
+    private final PerformanceService performanceService;
+
+    @GetMapping("/musicals")
+    public ResponseEntity<List<MusicalResponseDto>> getPerformances(
+            @RequestParam(name = "sort", defaultValue = "latest") String sortParam) {
+
+        PerformanceSortType sort;
         Long userId = null;
 
-        if (sort == PerformanceSortType.MINE) {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication != null && authentication.isAuthenticated()) {
-                Object principal = authentication.getPrincipal();
-
-                if (principal instanceof User user) {
-                    userId = user.getId();
-                }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof User user) {
+                userId = user.getId();
             }
         }
 
-        return performanceService.getPerformances(sort, userId);
-    }
+        switch (sortParam.toLowerCase()) {
+            case "most-reserved" -> sort = PerformanceSortType.MOST_RESERVED;
+            case "my-reservations" -> sort = PerformanceSortType.MINE;
+            default -> sort = PerformanceSortType.LATEST;
+        }
 
+        List<MusicalResponseDto> response = performanceService.getPerformances(sort, userId);
+        return ResponseEntity.ok(response);
+    }
 }

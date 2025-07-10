@@ -7,26 +7,20 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.bootcamp.savemypodo.entity.Performance;
+import com.bootcamp.savemypodo.entity.Musical;
+
 
 @Repository
-public interface PerformanceRepository extends JpaRepository<Performance, Long> {
-	// table 이름과 entity에서 정의한 변수 이름 확인 -> 
+public interface PerformanceRepository extends JpaRepository<Musical, Long> {
 	
 	// 공연 테이블에서 공연을 최신순으로 정렬
-	@Query("SELECT p FROM Performance p ORDER BY p.date DESC")
-	List<Performance> findAllByLatest();
+	@Query("SELECT m FROM Musical m ORDER BY m.date DESC")
+	List<Musical> findAllByLatest();
 	
 	// 예매 순 정렬
-	@Query("""
-			SELECT p FROM Performance p 
-			LEFT JOIN Reservation r ON r.performance = p
-			GROUP BY p
-			ORDER BY COUNT(r.id) DESC
-			""")
-	List<Performance> findAllByPopular();
+	List<Musical> findAllByOrderByReservedCountDesc();
 	
-	// 내가 예매한 공연, performance는 reservation entity에 있는 pid 변수 이름
-	@Query("SELECT r.performance FROM Reservation r WHERE r.user.id = :userId")
-	List<Performance> findAllByUserId(@Param("userId") Long userId);
+	// 내가 예매한 공연, 
+	@Query("SELECT r.musical FROM Reservation r WHERE r.user.id = :userId")
+	List<Musical> findAllByUserId(@Param("userId") Long userId);
 }

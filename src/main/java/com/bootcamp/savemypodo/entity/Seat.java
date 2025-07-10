@@ -21,16 +21,18 @@ public class Seat {
 
     @Id 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id")
+    private Long sid;
 
     @ManyToOne
-    @JoinColumn(name = "mid",referencedColumnName = "mid")
+    @JoinColumn(name = "mid",referencedColumnName = "id")
     private Musical musical;
     
-    @Column(length = 1)
-    private char row;
+    @Column(name = "seat_row", length = 1)
+    private Character row;
     
-    private int column;
+    @Column(name = "seat_column")
+    private Integer column;
 }
 
 

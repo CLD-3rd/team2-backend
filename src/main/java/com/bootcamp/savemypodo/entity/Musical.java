@@ -24,19 +24,26 @@ public class Musical {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	@Column(name = "id")
+	private Long mid;
 	private String title;
 	
 	@Column(name = "poster_url")
 	private String posterUrl ;
-	private LocalTime start_time;
-	private LocalTime end_time;
+	
+	@Column(name = "start_time")
+	private LocalTime startTime;
+	
+	@Column(name = "end_time")
+	private LocalTime endTime;
 	private String description ;
 	private LocalDate date;
 	private Long price;
 	private String location;
 	private Long duration;
-	private Long reserved_count;
+	
+	@Column(name = "reserved_count")
+	private Long reservedCount;
 	
 	
 }

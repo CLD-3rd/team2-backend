@@ -2,6 +2,6 @@ package com.bootcamp.savemypodo.entity;
 
 public enum PerformanceSortType {
 	LATEST,
-	POPULAR,
+	MOST_RESERVED,
 	MINE
 }

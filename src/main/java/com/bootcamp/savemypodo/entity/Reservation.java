@@ -6,24 +6,21 @@ import lombok.Setter;
 import org.springframework.stereotype.Service;
 
 @Entity
-@Getter
-@Setter
-@Service
 @Table(name = "reservations")
 public class Reservation {
-	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
 	@ManyToOne
-	@JoinColumn(name = "uid")
+	@JoinColumn(name = "uid", referencedColumnName = "id")
 	private User user;
 	
 	@ManyToOne
-	@JoinColumn(name = "mid")
+	@JoinColumn(name = "mid", referencedColumnName = "id")
 	private Musical musical ;
 	
 	@ManyToOne
 	@JoinColumn(name = "sid")
 	private Seat seat ;
-
 }
