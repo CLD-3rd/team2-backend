@@ -1,30 +1,26 @@
 package com.bootcamp.savemypodo.controller;
 
-import java.util.List;
-
+import com.bootcamp.savemypodo.dto.musical.MusicalResponse;
+import com.bootcamp.savemypodo.entity.User;
+import com.bootcamp.savemypodo.global.enums.SortType;
+import com.bootcamp.savemypodo.service.MusicalService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.bootcamp.savemypodo.dto.musical.MusicalResponse;
-//import com.bootcamp.savemypodo.entity.MusicalSortType;
-import com.bootcamp.savemypodo.entity.User;
-import com.bootcamp.savemypodo.global.enums.SortType;
-import com.bootcamp.savemypodo.service.PerformanceService;
-
-import lombok.RequiredArgsConstructor;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("/api")
-public class PerformanceController {
+public class MusicalController {
 
-    private final PerformanceService performanceService;
+    private final MusicalService musicalService;
 
     @GetMapping("/musicals")
     public ResponseEntity<List<MusicalResponse>> getMusicals(
@@ -41,13 +37,14 @@ public class PerformanceController {
         }
 
         SortType sort;
+
         try {
             sort = SortType.from(sortParam);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(null); // 또는 에러 메시지 DTO로
         }
 
-        List<MusicalResponse> response = performanceService.getPerformances(sort, userId);
+        List<MusicalResponse> response = musicalService.getPerformances(sort, userId);
         return ResponseEntity.ok(response);
     }
 }

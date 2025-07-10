@@ -1,81 +1,83 @@
 package com.bootcamp.savemypodo.service;
 
+import com.bootcamp.savemypodo.dto.reservation.MyReservationResponse;
 import com.bootcamp.savemypodo.entity.Musical;
 import com.bootcamp.savemypodo.entity.Reservation;
 import com.bootcamp.savemypodo.entity.Seat;
 import com.bootcamp.savemypodo.entity.User;
+import com.bootcamp.savemypodo.global.exception.ErrorCode;
+import com.bootcamp.savemypodo.global.exception.MusicalException;
+import com.bootcamp.savemypodo.global.exception.ReservationException;
 import com.bootcamp.savemypodo.repository.MusicalRepository;
-import com.bootcamp.savemypodo.repository.PerformanceRepository;
-import com.bootcamp.savemypodo.dto.reservation.MyReservationResponse;
 import com.bootcamp.savemypodo.repository.ReservationRepository;
-
-import jakarta.transaction.Transactional;
-
 import com.bootcamp.savemypodo.repository.SeatRepository;
-import com.bootcamp.savemypodo.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Service;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
-	private final MusicalRepository musicalRepository;
+
+    private final MusicalRepository musicalRepository;
     private final ReservationRepository reservationRepository;
     private final SeatRepository seatRepository;
-    private final UserRepository userRepository;
-    private final PerformanceRepository performanceRepository;
 
-    public Reservation createReservation(User user, Long mid, String sid) {
-    	Character row = sid.charAt(0);
+    @Transactional
+    public void createReservation(User user, Long mid, String seatName) {
+
+        // + 해당 유저가 이미 해당 Musical 좌석을 예약 했는지 Check!
+
+        Character row = seatName.charAt(0);
         Integer column;
         try {
-            column = Integer.parseInt(sid.substring(1));
+            column = Integer.parseInt(seatName.substring(1));
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("좌석 번호가 숫자가 아닙니다.");
         }
         Optional<Seat> existingSeat = seatRepository.findByMusicalIdAndRowAndColumn(mid, row, column);
         if (existingSeat.isPresent()) {
-            throw new IllegalStateException("이미 해당 좌석을 예약하셨습니다.");
+            throw new ReservationException(ErrorCode.SEAT_ALREADY_RESERVED);
         }
 
-        Musical musical = performanceRepository.findById(mid)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 뮤지컬입니다."));
+        Musical musical = musicalRepository.findById(mid)
+                .orElseThrow(() -> new MusicalException(ErrorCode.MUSICAL_NOT_FOUND));
 
         // 새로운 좌석 생성 및 저장
-        Seat newSeat = new Seat();
-        newSeat.setMusical(musical);
-        newSeat.setRow(row);
-        newSeat.setColumn(column);
-        seatRepository.save(newSeat);
+        Seat seat = Seat.builder()
+                .musical(musical)
+                .row(row)
+                .column(column)
+                .build();
+        seatRepository.save(seat);
 
         // 예약 생성
-        Reservation reservation = new Reservation();
-        reservation.setUser(user);
-        reservation.setMusical(musical);
-        reservation.setSeat(newSeat);
+        Reservation reservation = Reservation.builder()
+                .user(user)
+                .musical(musical)
+                .seat(seat)
+                .build();
         reservationRepository.save(reservation);
-        return reservationRepository.save(reservation);
+
+        // + 공연의 reservedCount 증가 로직 추가!
     }
-  public List<MyReservationResponse> getMyReservationsByUser(User user) {
+
+    public List<MyReservationResponse> getMyReservationsByUser(User user) {
         List<Reservation> reservations = reservationRepository.findAllByUser(user);
         return reservations.stream()
                 .map(MyReservationResponse::fromEntity)
                 .collect(Collectors.toList());
     }
-    
+
     @Transactional
     public void cancelReservation(Long userId, Long musicalId) {
-    	// 1. 먼저 예약이 실제로 존재하는지 확인
+        // 1. 먼저 예약이 실제로 존재하는지 확인
         Optional<Reservation> reservationOpt = reservationRepository.findByUser_IdAndMusical_Id(userId, musicalId);
 
         if (reservationOpt.isEmpty()) {
@@ -90,7 +92,7 @@ public class ReservationService {
                 .orElseThrow(() -> new NoSuchElementException("해당 뮤지컬이 존재하지 않습니다."));
 
         int updatedCount = Math.max(0, (int) (musical.getReservedCount() - 1)); // 음수 방지
-        musical.setReservedCount((long)updatedCount);
+        musical.setReservedCount((long) updatedCount);
         musicalRepository.save(musical);
     }
 }

@@ -1,35 +1,30 @@
 package com.bootcamp.savemypodo.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Getter
 @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
+@ToString(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(of = "id")
 @Entity
 @Table(name = "seats")
 public class Seat {
 
-
-    @Id 
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
+    private Long id; // 좌석 고유 ID
 
-    @ManyToOne
-    @JoinColumn(name = "mid",referencedColumnName = "id")
-    private Musical musical;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "mid", nullable = false)
+    private Musical musical; // 해당 좌석의 공연
 
-    @Column(name = "seat_row", length = 1)
-    private Character row;
+    @Column(name = "seat_row", nullable = false, length = 1)
+    private Character row; // 좌석 행 (A~J)
 
-    @Column(name = "seat_column")
-    private Integer column;
+    @Column(name = "seat_column", nullable = false)
+    private Integer column; // 좌석 열 (1~14)
 }
