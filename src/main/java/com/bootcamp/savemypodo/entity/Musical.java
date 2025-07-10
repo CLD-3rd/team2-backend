@@ -26,6 +26,7 @@ public class Musical {
 	private Long id;
 	private String title;
 	
+
 	@Column(name = "poster_url")
 	private String posterUrl ;
 
@@ -45,3 +46,4 @@ public class Musical {
 	
 	
 }
+

@@ -18,10 +18,15 @@ public record MusicalResponse(
         Long price,
         String location,
         Long duration,
-        Long reservedCount
+        Long reservedCount,
+        Long remainingSeats
 ) {
     public static MusicalResponse fromEntity(Musical musical) {
-        return MusicalResponse.builder()
+    	Long reservedCount = musical.getReservedCount();
+        Long totalSeats = (long) Musical.TOTAL_SEATS;
+        Long remainingSeats = totalSeats - reservedCount;
+    	
+    	return MusicalResponse.builder()
                 .id(musical.getId())
                 .title(musical.getTitle())
                 .posterUrl(musical.getPosterUrl())
@@ -32,6 +37,7 @@ public record MusicalResponse(
                 .location(musical.getLocation())
                 .duration(musical.getDuration())
                 .reservedCount(musical.getReservedCount())
+                .remainingSeats(remainingSeats)
                 .build();
     }
 
