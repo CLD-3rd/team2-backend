@@ -1,6 +1,8 @@
 package com.bootcamp.savemypodo.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,19 +15,26 @@ import lombok.Getter;
 
 @Getter
 @Entity
-@Table(name = "performances")
-public class Performance {
+@Table(name = "musicals")
+public class Musical {
+	
+	public static final int TOTAL_SEATS = 140;
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long pid;
+	private Long id;
 	private String title;
-	private String summary ;
-	private LocalDateTime date;
-	private int price;
 	
-	@Transient
-	private int reservedSeats;
+	@Column(name = "poster_url")
+	private String posterUrl ;
+	private LocalTime start_time;
+	private LocalTime end_time;
+	private String description ;
+	private LocalDate date;
+	private Long price;
+	private String location;
+	private Long duration;
+	private Long reserved_count;
 	
-	@Column(name = "seat_number")
-	private int seatNumber;
+	
 }
