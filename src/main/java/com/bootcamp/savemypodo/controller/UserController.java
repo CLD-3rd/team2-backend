@@ -56,8 +56,8 @@ public class UserController {
 
     @GetMapping("/my-reservations")
     public ResponseEntity<List<MyReservationResponse>> getMyReservations(@AuthenticationPrincipal User user) {
-        List<MyReservationResponse> reservations = reservationService.getMyReservationsByUser(user);
-        return ResponseEntity.ok(reservations);
+        List<MyReservationResponse> myReservations = reservationService.getMyReservationsByUser(user);
+        return ResponseEntity.ok(myReservations);
     }
 
 }

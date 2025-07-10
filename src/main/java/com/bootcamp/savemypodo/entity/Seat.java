@@ -15,7 +15,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "Seats")
+@Table(name = "seats")
 public class Seat {
 
 
@@ -24,13 +24,14 @@ public class Seat {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "mid",referencedColumnName = "mid")
+    @JoinColumn(name = "mid",referencedColumnName = "id")
     private Musical musical;
-    
-    @Column(length = 1)
-    private char row;
-    
-    private int column;
+
+    @Column(name = "seat_row", length = 1)
+    private Character row;
+
+    @Column(name = "seat_column")
+    private Integer column;
 }
 
 

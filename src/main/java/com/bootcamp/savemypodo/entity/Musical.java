@@ -29,14 +29,14 @@ public class Musical {
 	
 	@Column(name = "poster_url")
 	private String posterUrl ;
-	private LocalTime start_time;
-	private LocalTime end_time;
+	private LocalTime startTime;
+	private LocalTime endTime;
 	private String description ;
 	private LocalDate date;
 	private Long price;
 	private String location;
 	private Long duration;
-	private Long reserved_count;
+	private Long reservedCount;
 	
 	
 }
