@@ -4,10 +4,12 @@ import com.bootcamp.savemypodo.dto.reservation.MyReservationResponse;
 import com.bootcamp.savemypodo.dto.user.UserResponse;
 import com.bootcamp.savemypodo.entity.User;
 import com.bootcamp.savemypodo.repository.UserRepository;
+import com.bootcamp.savemypodo.service.RedisRefreshTokenService;
 import com.bootcamp.savemypodo.service.ReservationService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,20 +19,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserRepository userRepository;
+    private final RedisRefreshTokenService redisRefreshTokenService;
     private final ReservationService reservationService;
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@AuthenticationPrincipal User user,
                                     HttpServletResponse response) {
-        // 1. RefreshToken DB 삭제
-        user.updateRefreshToken(null);
-        userRepository.save(user);
+        log.info("🚪 [Logout Request] 사용자 로그아웃 요청: {}", user.getEmail());
+        // 1. Redis에서 RefreshToken 삭제
+        redisRefreshTokenService.deleteRefreshToken(user.getId().toString());
+        log.info("[Logout] Redis에서 RefreshToken 삭제 완료: userId={}", user.getId());
 
         // 2. 클라이언트 쿠키 삭제 (Set-Cookie로 빈 값 전달)
         Cookie accessTokenCookie = new Cookie("accessToken", null);
@@ -45,6 +49,7 @@ public class UserController {
 
         response.addCookie(accessTokenCookie);
         response.addCookie(refreshTokenCookie);
+        log.info("[Logout] 쿠키 만료 처리 완료: accessToken & refreshToken");
 
         return ResponseEntity.ok().body("로그아웃 완료");
     }
