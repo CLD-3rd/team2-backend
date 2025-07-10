@@ -4,7 +4,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
@@ -48,6 +49,27 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleUserException(UserException e, HttpServletRequest request) {
         ErrorCode code = e.getErrorCode();
         log.warn("🚫 UserException: {} - {}", code.getStatus(), code.getMessage());
+        return buildResponse(code.getStatus(), code.getMessage(), request.getRequestURI());
+    }
+
+    @ExceptionHandler(MusicalException.class)
+    public ResponseEntity<?> handleUserException(MusicalException e, HttpServletRequest request) {
+        ErrorCode code = e.getErrorCode();
+        log.warn("🎤 MusicalException: {} - {}", code.getStatus(), code.getMessage());
+        return buildResponse(code.getStatus(), code.getMessage(), request.getRequestURI());
+    }
+
+    @ExceptionHandler(ReservationException.class)
+    public ResponseEntity<?> handleUserException(ReservationException e, HttpServletRequest request) {
+        ErrorCode code = e.getErrorCode();
+        log.warn("📅 ReservationException: {} - {}", code.getStatus(), code.getMessage());
+        return buildResponse(code.getStatus(), code.getMessage(), request.getRequestURI());
+    }
+
+    @ExceptionHandler(SeatException.class)
+    public ResponseEntity<?> handleUserException(SeatException e, HttpServletRequest request) {
+        ErrorCode code = e.getErrorCode();
+        log.warn("🪑 SeatException: {} - {}", code.getStatus(), code.getMessage());
         return buildResponse(code.getStatus(), code.getMessage(), request.getRequestURI());
     }
 

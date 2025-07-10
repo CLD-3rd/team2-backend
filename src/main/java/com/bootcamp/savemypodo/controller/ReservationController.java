@@ -3,15 +3,9 @@ package com.bootcamp.savemypodo.controller;
 
 import com.bootcamp.savemypodo.entity.Musical;
 import com.bootcamp.savemypodo.entity.User;
-import com.bootcamp.savemypodo.entity.Reservation;
-import com.bootcamp.savemypodo.repository.MusicalRepository;
-import com.bootcamp.savemypodo.repository.ReservationRepository;
-
 import com.bootcamp.savemypodo.service.ReservationService;
-
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -23,8 +17,6 @@ import org.springframework.web.bind.annotation.*;
 public class ReservationController {
 
     private final ReservationService reservationService;
-    private final ReservationRepository reservationRepository;
-    private final MusicalRepository musicalRepository;
 
     // 예매 등록
     @PostMapping("/api/musicals/{musicalId}/seats")

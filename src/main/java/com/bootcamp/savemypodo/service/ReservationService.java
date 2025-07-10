@@ -8,7 +8,6 @@ import com.bootcamp.savemypodo.entity.User;
 import com.bootcamp.savemypodo.repository.MusicalRepository;
 import com.bootcamp.savemypodo.repository.ReservationRepository;
 import com.bootcamp.savemypodo.repository.SeatRepository;
-import com.bootcamp.savemypodo.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,14 +24,12 @@ public class ReservationService {
     private final MusicalRepository musicalRepository;
     private final ReservationRepository reservationRepository;
     private final SeatRepository seatRepository;
-    private final UserRepository userRepository;
-    private final PerformanceRepository performanceRepository;
 
-    public Reservation createReservation(User user, Long mid, String sid) {
-        Character row = sid.charAt(0);
+    public Reservation createReservation(User user, Long mid, String seatName) {
+        Character row = seatName.charAt(0);
         Integer column;
         try {
-            column = Integer.parseInt(sid.substring(1));
+            column = Integer.parseInt(seatName.substring(1));
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("좌석 번호가 숫자가 아닙니다.");
         }
