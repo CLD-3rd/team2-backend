@@ -19,10 +19,11 @@ public class Reservation {
 	private User user;
 	
 	@ManyToOne
-	@JoinColumn(name = "pid")
-	private Performance performance;
+	@JoinColumn(name = "mid")
+	private Musical musical ;
+	
+	@ManyToOne
+	@JoinColumn(name = "sid")
+	private Seat seat ;
 
-	@OneToOne
-	@JoinColumn(name = "seat_id")
-	private Seat seat;
 }
