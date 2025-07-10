@@ -27,7 +27,7 @@ public class Reservation {
     @JoinColumn(name = "mid", nullable = false)
     private Musical musical; // 공연
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "sid", nullable = false)
     private Seat seat; // 좌석
 }
