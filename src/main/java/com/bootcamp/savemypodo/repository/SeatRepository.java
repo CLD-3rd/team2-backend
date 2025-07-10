@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface SeatRepository extends JpaRepository<Seat, Long> {
-//    List<Seat> findByPerformance_Pid(Long pid);
-//    Optional<Seat> findByPerformance_PidAndSid(Long pid, String sid);
+
+    List<Seat> findByMusical_Id(Long musicalId);
+
+    Optional<Seat> findByMusicalIdAndRowAndColumn(Long musicalId, Character row, Integer column);
 }
+

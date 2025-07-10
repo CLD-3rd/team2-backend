@@ -1,83 +1,52 @@
 package com.bootcamp.savemypodo.controller;
 
-import com.bootcamp.savemypodo.entity.User;
-import com.bootcamp.savemypodo.repository.MusicalRepository;
-import com.bootcamp.savemypodo.repository.ReservationRepository;
-//import com.bootcamp.savemypodo.security.CustomUserPrincipal;
 
+import com.bootcamp.savemypodo.entity.User;
+import com.bootcamp.savemypodo.service.ReservationService;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/reservations")
 public class ReservationController {
 
-    private final ReservationRepository reservationRepository;
-    private final MusicalRepository musicalRepository;
+    private final ReservationService reservationService;
 
-    // 예매 상태 조회
-//    @GetMapping("/status")
-//    public ResponseEntity<ReservationResponseDto> getReservationStatus(
-//            @RequestParam Long pid,
-//            Authentication authentication) {
-//
-//        Long userId = null;
-//        if (authentication != null && authentication.isAuthenticated()) {
-//            Object principal = authentication.getPrincipal();
-//            if (principal instanceof User user) {
-//                userId = user.getId();
-//            }
-//        }
-//
-//        Musical performance = musicalRepository.findById(pid)
-//                .orElseThrow(() -> new RuntimeException("공연을 찾을 수 없습니다."));
-//        // 전체 좌석 수
-//        int seatNumber = performance.getSeatNumber();
-//
-//        // 예매된 좌석 수
-//        int currentReserved = reservationRepository.countByPerformance_Pid(pid);
-//        boolean soldOut = currentReserved >= performance.getSeatNumber();
-//
-//        boolean reserved = false;
-//        if (userId != null) {
-//            reserved = reservationRepository.existsByUser_IdAndPerformance_Pid(userId, pid);
-//        }
-//
-//        return ResponseEntity.ok(new ReservationResponseDto(
-//        		reserved,
-//        		soldOut,
-//        		seatNumber,
-//        		currentReserved));
-//    }
+    // 예매 등록
+    @PostMapping("/api/musicals/{musicalId}/seats")
+    public ResponseEntity<?> createReservation(
+            @PathVariable("musicalId") Long musicalId,
+            @RequestBody ReservationRequest request,
+            @AuthenticationPrincipal User user
+    ) {
+        reservationService.createReservation(user, musicalId, request.getSeatId());
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ReservationResponse("성공적으로 예약이 되었습니다."));
+    }
 
-    // 예매 취소
-//    @DeleteMapping("/{pid}")
-//    public ResponseEntity<Void> cancelReservation(
-//            @PathVariable Long pid,
-//            Authentication authentication) {
-//
-//        Long userId = null;
-//        if (authentication != null && authentication.isAuthenticated()) {
-//            Object principal = authentication.getPrincipal();
-//            if (principal instanceof User user) {
-//                userId = user.getId();
-//            }
-//        }
-//
-//        if (userId == null) {
-//            return ResponseEntity.status(401).build(); // 인증 실패
-//        }
-//
-//        boolean exists = reservationRepository.existsByUser_IdAndPerformance_Pid(userId, pid);
-//        if (!exists) {
-//            return ResponseEntity.status(404).build(); // 예매 기록 없음
-//        }
-//
-//        reservationRepository.deleteByUser_IdAndPerformance_Pid(userId, pid);
-//        return ResponseEntity.noContent().build(); // 성공적으로 삭제됨
-//    }
+    //예매 취소
+    @DeleteMapping("/api/reservations/{reservationId}")
+    public ResponseEntity<ReservationResponse> cancelReservation(
+            @PathVariable("reservationId") Long musicalId,
+            @AuthenticationPrincipal User user) {
+
+        reservationService.cancelReservation(user.getId(), musicalId);
+        return ResponseEntity.ok(new ReservationResponse("성공적으로 취소 되었습니다."));
+    }
+
+    // -> 이것 보다는 dto 패키지에 ReservationRequest, Response를 사용하는것을 추천
+    @Data
+    static class ReservationRequest {
+        private String seatId; // 좌석 ID
+    }
+
+    @Data
+    static class ReservationResponse {
+        private final String message;
+    }
+
 }
-

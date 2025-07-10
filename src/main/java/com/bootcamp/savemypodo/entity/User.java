@@ -3,35 +3,44 @@ package com.bootcamp.savemypodo.entity;
 import com.bootcamp.savemypodo.global.enums.Provider;
 import com.bootcamp.savemypodo.global.enums.Role;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Entity
 @Getter
-@NoArgsConstructor
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Table(name = "USERS")
+@ToString(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(of = "id")
+@Entity
+@Table(name = "users")
 public class User {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "uid")
-    private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id; // 사용자 고유 ID (PK)
 
-    @Column(nullable = false, unique = true)
-    private String email;               // OAuth2 제공 이메일
-    private String nickname;                // 사용자 이름
-    private String profileImageUrl;     // 프로필 사진 URL
+    @Column(nullable = false, length = 255, unique = true)
+    private String email; // 소셜 로그인 이메일
+
+    @Column(length = 255)
+    private String nickname; // 사용자 닉네임
+
+    @Column(name = "profile_image_url", length = 512)
+    private String profileImageUrl; // 소셜 프로필 사진 URL
 
     @Enumerated(EnumType.STRING)
-    private Provider provider;        // ex) google, kakao, github
-    private String providerId;          // 해당 provider 내 유저 ID
+    @Column(nullable = false)
+    private Provider provider; // 소셜 로그인 제공자 (예: GOOGLE)
+
+    @Column(name = "provider_id", length = 255)
+    private String providerId; // 공급자 내 고유 사용자 ID
 
     @Enumerated(EnumType.STRING)
-    private Role role;                  // 사용자 역할 (예: USER, ADMIN)
+    @Column(nullable = false)
+    private Role role; // 사용자 권한 (예: USER, ADMIN)
 
+    @Column(name = "refresh_token", columnDefinition = "TEXT")
     private String refreshToken; // 리프레시 토큰
 
     // 유저 권한 설정 메소드
@@ -43,3 +52,8 @@ public class User {
         this.refreshToken = updateRefreshToken;
     }
 }
+
+
+
+
+ 
