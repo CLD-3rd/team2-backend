@@ -27,6 +27,7 @@ public class Musical {
 	private Long id;
 	private String title;
 	
+
 	@Column(name = "poster_url")
 	private String posterUrl ;
 	private LocalTime startTime;
@@ -40,3 +41,4 @@ public class Musical {
 	
 	
 }
+

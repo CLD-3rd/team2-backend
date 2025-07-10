@@ -26,16 +26,10 @@ public class Seat {
     @ManyToOne
     @JoinColumn(name = "mid",referencedColumnName = "id")
     private Musical musical;
-
+  
     @Column(name = "seat_row", length = 1)
     private Character row;
 
     @Column(name = "seat_column")
     private Integer column;
 }
-
-
-
- 
-
-
