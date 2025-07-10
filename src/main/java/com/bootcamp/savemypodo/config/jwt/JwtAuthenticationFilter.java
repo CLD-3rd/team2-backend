@@ -64,8 +64,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 // Refresh Token 만료 여부 확인
                 if (jwtTokenProvider.isTokenExpired(refreshToken)) {
                     log.warn("❌ Refresh Token 만료됨: {}", email);
-                    user.updateRefreshToken(null);
-                    userRepository.save(user);
                     throw new UserException(ErrorCode.REFRESH_TOKEN_EXPIRED);
                 }
 

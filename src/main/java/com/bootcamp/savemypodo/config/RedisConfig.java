@@ -32,8 +32,8 @@ public class RedisConfig {
     }
 
     // Refresh Token 용 (String 기반)
-    @Bean
-    public RedisTemplate<String, String> stringRedisTemplate() {
+    @Bean(name = "customStringRedisTemplate")
+    public RedisTemplate<String, String> customStringRedisTemplate() {
         RedisTemplate<String, String> template = new RedisTemplate<>();
         template.setConnectionFactory(redisConnectionFactory());
 

@@ -54,30 +54,30 @@ public class ReservationController {
 //    }
 
     // 예매 취소
-    @DeleteMapping("/{pid}")
-    public ResponseEntity<Void> cancelReservation(
-            @PathVariable Long pid,
-            Authentication authentication) {
-
-        Long userId = null;
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof User user) {
-                userId = user.getId();
-            }
-        }
-
-        if (userId == null) {
-            return ResponseEntity.status(401).build(); // 인증 실패
-        }
-
-        boolean exists = reservationRepository.existsByUser_IdAndPerformance_Pid(userId, pid);
-        if (!exists) {
-            return ResponseEntity.status(404).build(); // 예매 기록 없음
-        }
-
-        reservationRepository.deleteByUser_IdAndPerformance_Pid(userId, pid);
-        return ResponseEntity.noContent().build(); // 성공적으로 삭제됨
-    }
+//    @DeleteMapping("/{pid}")
+//    public ResponseEntity<Void> cancelReservation(
+//            @PathVariable Long pid,
+//            Authentication authentication) {
+//
+//        Long userId = null;
+//        if (authentication != null && authentication.isAuthenticated()) {
+//            Object principal = authentication.getPrincipal();
+//            if (principal instanceof User user) {
+//                userId = user.getId();
+//            }
+//        }
+//
+//        if (userId == null) {
+//            return ResponseEntity.status(401).build(); // 인증 실패
+//        }
+//
+//        boolean exists = reservationRepository.existsByUser_IdAndPerformance_Pid(userId, pid);
+//        if (!exists) {
+//            return ResponseEntity.status(404).build(); // 예매 기록 없음
+//        }
+//
+//        reservationRepository.deleteByUser_IdAndPerformance_Pid(userId, pid);
+//        return ResponseEntity.noContent().build(); // 성공적으로 삭제됨
+//    }
 }
 
