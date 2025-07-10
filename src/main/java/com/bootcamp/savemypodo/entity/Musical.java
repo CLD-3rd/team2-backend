@@ -1,0 +1,42 @@
+package com.bootcamp.savemypodo.entity;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@Entity
+@Table(name = "musicals")
+public class Musical {
+	
+	public static final int TOTAL_SEATS = 140;
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+	private String title;
+	
+	@Column(name = "posterurl")
+	private String posterUrl ;
+	private LocalTime starttime;
+	private LocalTime endtime;
+	private String description ;
+	private LocalDate date;
+	private Long price;
+	private String location;
+	private Long duration;
+	private Long reserved_count;
+	
+	
+}

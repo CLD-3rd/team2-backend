@@ -1,5 +1,7 @@
 package com.bootcamp.savemypodo.entity;
 
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,14 +18,22 @@ import lombok.Setter;
 @Table(name = "Seats")
 public class Seat {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id 
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String sid; // 예: A1, B3 등
-
-    private Boolean seatStatus;
-
     @ManyToOne
-    @JoinColumn(name = "pid",referencedColumnName = "pid")
-    private Performance performance;
+    @JoinColumn(name = "mid",referencedColumnName = "id")
+    private Musical musical;
+    
+    @Column(name = "seat_row", length = 1)
+    private Character row;
+
+    @Column(name = "seat_column")
+    private Integer column;
 }
+
+
+
+ 

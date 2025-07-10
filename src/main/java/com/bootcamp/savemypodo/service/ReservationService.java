@@ -1,9 +1,6 @@
 package com.bootcamp.savemypodo.service;
 
-import org.springframework.stereotype.Service;
-
-import com.bootcamp.savemypodo.dto.reservation.ReservationRequestDto;
-import com.bootcamp.savemypodo.entity.Performance;
+import com.bootcamp.savemypodo.entity.Musical;
 import com.bootcamp.savemypodo.entity.Reservation;
 import com.bootcamp.savemypodo.entity.Seat;
 import com.bootcamp.savemypodo.entity.User;
@@ -11,9 +8,14 @@ import com.bootcamp.savemypodo.repository.PerformanceRepository;
 import com.bootcamp.savemypodo.repository.ReservationRepository;
 import com.bootcamp.savemypodo.repository.SeatRepository;
 import com.bootcamp.savemypodo.repository.UserRepository;
-
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import java.util.Optional;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -24,33 +26,36 @@ public class ReservationService {
     private final UserRepository userRepository;
     private final PerformanceRepository performanceRepository;
 
-    @Transactional
-    public void reserveSeat(ReservationRequestDto request) {
-        // 1. 좌석 찾기
-        Seat seat = seatRepository.findByPerformance_PidAndSid(request.pid(), request.sid())
-                .orElseThrow(() -> new RuntimeException("해당 좌석을 찾을 수 없습니다."));
-        
-        // 2. 이미 예약됨 확인
-        if (Boolean.TRUE.equals(seat.getSeatStatus())) {
-            throw new IllegalStateException("이미 예약된 좌석입니다.");
+    public Reservation createReservation(User user, Long mid, String sid) {
+    	Character row = sid.charAt(0);
+        Integer column;
+        try {
+            column = Integer.parseInt(sid.substring(1));
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("좌석 번호가 숫자가 아닙니다.");
+        }
+        Optional<Seat> existingSeat = seatRepository.findByMusicalIdAndRowAndColumn(mid, row, column);
+        if (existingSeat.isPresent()) {
+            throw new IllegalStateException("이미 해당 좌석을 예약하셨습니다.");
         }
 
-        // 3. 사용자 / 공연 조회
-        User user = userRepository.findById(request.uid())
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
-        Performance performance = performanceRepository.findById(request.pid())
-                .orElseThrow(() -> new RuntimeException("공연 정보를 찾을 수 없습니다."));
+        Musical musical = performanceRepository.findById(mid)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 뮤지컬입니다."));
 
-        // 4. 좌석 상태 업데이트
-        seat.setSeatStatus(true);
+        // 새로운 좌석 생성 및 저장
+        Seat newSeat = new Seat();
+        newSeat.setMusical(musical);
+        newSeat.setRow(row);
+        newSeat.setColumn(column);
+        seatRepository.save(newSeat);
 
-        // 5. 예약 객체 저장
-        Reservation reservation = Reservation.builder()
-                .user(user)
-                .performance(performance)
-                .sid(request.sid())
-                .build();
-
+        // 예약 생성
+        Reservation reservation = new Reservation();
+        reservation.setUser(user);
+        reservation.setMusical(musical);
+        reservation.setSeat(newSeat);
         reservationRepository.save(reservation);
+        return reservationRepository.save(reservation);
     }
 }
+

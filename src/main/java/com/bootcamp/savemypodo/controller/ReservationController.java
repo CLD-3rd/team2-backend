@@ -1,34 +1,45 @@
 package com.bootcamp.savemypodo.controller;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.bootcamp.savemypodo.dto.reservation.ReservationRequestDto;
+import com.bootcamp.savemypodo.entity.Reservation;
 import com.bootcamp.savemypodo.service.ReservationService;
-
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.bootcamp.savemypodo.entity.User;
+
 @RestController
-@RequestMapping("/api/performances/reservations")
+@RequestMapping("/api/musicals")
 @RequiredArgsConstructor
 public class ReservationController {
 
-    private final ReservationService reservationService;
-
-    @PostMapping
-    public ResponseEntity<?> reserveSeat(@RequestBody ReservationRequestDto request) {
-        try {
-            reservationService.reserveSeat(request);
-            return ResponseEntity.ok(new MessageResponse("예약이 완료되었습니다"));
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new MessageResponse(e.getMessage()));
-        }
+	private final ReservationService reservationService;
+	
+    @PostMapping("/{musicalId}/seats")
+    public ResponseEntity<?> createReservation(
+            @PathVariable("musicalId") Long musicalId,
+            @RequestBody ReservationRequest request,
+            @AuthenticationPrincipal User user
+    ) {
+        reservationService.createReservation(user, musicalId,request.getSid());
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ReservationResponse("성공적으로 예약이 되었습니다."));
     }
 
-    public record MessageResponse(String message) {}
+    @Data
+    static class ReservationRequest {
+        private String sid;      // 좌석 ID
+    }
+
+    @Data
+    static class ReservationResponse {
+        private final String message;
+    }
 }
