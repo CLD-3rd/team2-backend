@@ -6,7 +6,6 @@ import com.bootcamp.savemypodo.entity.Seat;
 import com.bootcamp.savemypodo.entity.User;
 import com.bootcamp.savemypodo.global.enums.SortType;
 import com.bootcamp.savemypodo.service.MusicalService;
-import com.bootcamp.savemypodo.service.SeatService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +26,6 @@ import java.util.stream.Collectors;
 public class MusicalController {
 
     private final MusicalService musicalService;
-    private final SeatService seatService;
 
     @GetMapping("/musicals")
     public ResponseEntity<List<MusicalResponse>> getMusicals(
@@ -58,7 +56,7 @@ public class MusicalController {
 
     @GetMapping("/musicals/{musicalId}/seats")
     public ResponseEntity<SeatResponse> getSeats(@PathVariable("musicalId") Long musicalId) {
-        List<Seat> seats = seatService.getSeatsByMusicalId(musicalId);
+        List<Seat> seats = musicalService.getSeatsByMusicalId(musicalId);
 
         List<String> reservedSeatNames = seats.stream()
                 .map(Seat::getSeatName)
