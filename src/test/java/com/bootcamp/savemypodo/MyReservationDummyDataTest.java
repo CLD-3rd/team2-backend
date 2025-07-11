@@ -1,4 +1,4 @@
-package com.bootcamp.savemypodo.controller;
+package com.bootcamp.savemypodo;
 
 import com.bootcamp.savemypodo.entity.Musical;
 import com.bootcamp.savemypodo.entity.Reservation;
