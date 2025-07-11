@@ -1,6 +1,7 @@
 package com.bootcamp.savemypodo.controller;
 
 
+import com.bootcamp.savemypodo.dto.reservation.ReservationRequest;
 import com.bootcamp.savemypodo.entity.User;
 import com.bootcamp.savemypodo.service.ReservationService;
 import lombok.Data;
@@ -23,7 +24,7 @@ public class ReservationController {
             @RequestBody ReservationRequest request,
             @AuthenticationPrincipal User user
     ) {
-        reservationService.createReservation(user, musicalId, request.getSeatId());
+        reservationService.createReservation(user, musicalId, request.seatName());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ReservationResponse("성공적으로 예약이 되었습니다."));
     }
@@ -39,10 +40,7 @@ public class ReservationController {
     }
 
     // -> 이것 보다는 dto 패키지에 ReservationRequest, Response를 사용하는것을 추천
-    @Data
-    static class ReservationRequest {
-        private String seatId; // 좌석 ID
-    }
+    
 
     @Data
     static class ReservationResponse {
