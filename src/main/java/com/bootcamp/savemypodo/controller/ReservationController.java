@@ -2,6 +2,7 @@ package com.bootcamp.savemypodo.controller;
 
 
 import com.bootcamp.savemypodo.dto.reservation.ReservationRequest;
+import com.bootcamp.savemypodo.dto.reservation.ReservationResponse;
 import com.bootcamp.savemypodo.entity.User;
 import com.bootcamp.savemypodo.service.ReservationService;
 import lombok.Data;
@@ -39,11 +40,5 @@ public class ReservationController {
         return ResponseEntity.ok(new ReservationResponse("성공적으로 취소 되었습니다."));
     }
 
-    // -> 이것 보다는 dto 패키지에 ReservationRequest, Response를 사용하는것을 추천
     
-
-    @Data
-    static class ReservationResponse {
-        private final String message;
-    }
 }
