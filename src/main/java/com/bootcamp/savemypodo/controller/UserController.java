@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 
@@ -27,6 +29,7 @@ public class UserController {
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@AuthenticationPrincipal User user,
+                                    HttpServletRequest request,
                                     HttpServletResponse response) {
         // 1. RefreshToken DB 삭제
         user.updateRefreshToken(null);
@@ -43,8 +46,20 @@ public class UserController {
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setMaxAge(0); // 즉시 만료
 
+        Cookie jsessionidCookie = new Cookie("JSESSIONID", null);
+        jsessionidCookie.setHttpOnly(true);
+        jsessionidCookie.setPath("/");
+        jsessionidCookie.setMaxAge(0); // 즉시 만료
+
         response.addCookie(accessTokenCookie);
         response.addCookie(refreshTokenCookie);
+        response.addCookie(jsessionidCookie);
+
+        // 4. 세션 무효화
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
 
         return ResponseEntity.ok().body("로그아웃 완료");
     }
