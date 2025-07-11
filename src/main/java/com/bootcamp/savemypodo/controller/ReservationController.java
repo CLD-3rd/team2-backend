@@ -19,7 +19,7 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     // 예매 등록
-    @PostMapping("/api/musicals/{musicalId}/seats")
+    @PostMapping("/api/reservations/{musicalId}")
     public ResponseEntity<?> createReservation(
             @PathVariable("musicalId") Long musicalId,
             @RequestBody ReservationRequest request,
