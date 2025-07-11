@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
@@ -71,6 +72,14 @@ public class GlobalExceptionHandler {
         ErrorCode code = e.getErrorCode();
         log.warn("🪑 SeatException: {} - {}", code.getStatus(), code.getMessage());
         return buildResponse(code.getStatus(), code.getMessage(), request.getRequestURI());
+    }
+    
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<String> handleResponseStatus(ResponseStatusException ex) {
+        // ex.getReason() 에 있는 메시지(“로그인이 필요합니다.”)만 plain text 로 응답
+        return ResponseEntity
+            .status(ex.getStatusCode())
+            .body(ex.getReason());
     }
 
     private ResponseEntity<Map<String, Object>> buildResponse(HttpStatus status, String message, String path) {
