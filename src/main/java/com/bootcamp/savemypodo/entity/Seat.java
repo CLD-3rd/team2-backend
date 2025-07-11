@@ -22,9 +22,6 @@ public class Seat {
     @JoinColumn(name = "mid", nullable = false)
     private Musical musical; // 해당 좌석의 공연
 
-    @Column(name = "seat_row", nullable = false, length = 1)
-    private Character row; // 좌석 행 (A~J)
-
-    @Column(name = "seat_column", nullable = false)
-    private Integer column; // 좌석 열 (1~14)
+    @Column(name = "seat_name", unique = true)
+    private String seatName;
 }
