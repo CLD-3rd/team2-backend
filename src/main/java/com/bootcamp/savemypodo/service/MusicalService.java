@@ -9,7 +9,10 @@ import com.bootcamp.savemypodo.repository.ReservationRepository;
 import com.bootcamp.savemypodo.repository.SeatRepository;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,7 +35,11 @@ public class MusicalService {
                 if (userId != null) {
                     musicals = musicalRepository.findAllByUserId(userId);
                 } else {
-                    musicals = List.of();
+                    //musicals = List.of();
+                	throw new ResponseStatusException(
+                            HttpStatus.UNAUTHORIZED,
+                            "로그인이 필요합니다."
+                    );
                 }
                 break;
             case LATEST:
@@ -42,9 +49,16 @@ public class MusicalService {
         }
         
         return musicals.stream()
-			    .map((Musical musical) -> {
-			        boolean isReserved = userId != null &&
-			            reservationRepository.existsByUser_IdAndMusical_Id(userId, musical.getId());
+        	    .map((Musical musical) -> {
+        	        boolean isReserved = false;
+
+        	        if (userId != null) {
+        	            isReserved = reservationRepository.existsByUser_IdAndMusical_Id(userId, musical.getId());
+        	        }
+
+        	        return MusicalResponse.fromEntity(musical, isReserved); 
+        	    })
+        	    .collect(Collectors.toList());
 
 			        return MusicalResponse.fromEntity(musical, isReserved); 
 			    })
@@ -56,6 +70,7 @@ public class MusicalService {
                 .orElseThrow(() -> new IllegalArgumentException("공연이 존재하지 않습니다."));
 
         return seatRepository.findByMusical_Id(musicalId);
+
     }
 }
 
