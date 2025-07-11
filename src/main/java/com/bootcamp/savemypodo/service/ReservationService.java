@@ -34,14 +34,7 @@ public class ReservationService {
 
         // + 해당 유저가 이미 해당 Musical 좌석을 예약 했는지 Check!
 
-        Character row = seatName.charAt(0);
-        Integer column;
-        try {
-            column = Integer.parseInt(seatName.substring(1));
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("좌석 번호가 숫자가 아닙니다.");
-        }
-        Optional<Seat> existingSeat = seatRepository.findByMusicalIdAndRowAndColumn(mid, row, column);
+        Optional<Seat> existingSeat = seatRepository.findByMusicalIdAndSeatName(mid, seatName);
         if (existingSeat.isPresent()) {
             throw new ReservationException(ErrorCode.SEAT_ALREADY_RESERVED);
         }
@@ -52,8 +45,7 @@ public class ReservationService {
         // 새로운 좌석 생성 및 저장
         Seat seat = Seat.builder()
                 .musical(musical)
-                .row(row)
-                .column(column)
+                .seatName(seatName)
                 .build();
         seatRepository.save(seat);
 

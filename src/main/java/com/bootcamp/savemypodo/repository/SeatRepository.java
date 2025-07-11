@@ -10,6 +10,6 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
 
     List<Seat> findByMusical_Id(Long musicalId);
 
-    Optional<Seat> findByMusicalIdAndRowAndColumn(Long musicalId, Character row, Integer column);
+    Optional<Seat> findByMusicalIdAndSeatName(Long musicalId, String seatName);
 }
 
