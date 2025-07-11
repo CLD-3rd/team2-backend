@@ -32,7 +32,10 @@ public class ReservationService {
     @Transactional
     public void createReservation(User user, Long mid, String seatName) {
 
-        // + 해당 유저가 이미 해당 Musical 좌석을 예약 했는지 Check!
+    	boolean user_reserved = reservationRepository.existsByUser_IdAndMusical_Id(user.getId(), mid);
+        if (user_reserved) {
+        	throw new ReservationException(ErrorCode.ALREADY_RESERVED_MUSICAL);
+        }
 
         Optional<Seat> existingSeat = seatRepository.findByMusicalIdAndSeatName(mid, seatName);
         if (existingSeat.isPresent()) {
