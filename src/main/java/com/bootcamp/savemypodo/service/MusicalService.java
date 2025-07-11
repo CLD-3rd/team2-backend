@@ -36,11 +36,19 @@ public class MusicalService {
                 musicals = musicalRepository.findAllByLatest();
                 break;
         }
+        
+        return musicals.stream()
+			    .map((Musical musical) -> {
+			        boolean isReserved = userId != null &&
+			            reservationRepository.existsByUser_IdAndMusical_Id(userId, musical.getId());
 
-
+			        return MusicalResponse.fromEntity(musical, isReserved); 
+			    })
+			    .collect(Collectors.toList());
+        /*
         return musicals.stream()
                 .map(MusicalResponse::fromEntity)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList());*/
     }
 }
 

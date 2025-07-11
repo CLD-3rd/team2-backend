@@ -19,9 +19,10 @@ public record MusicalResponse(
         String location,
         Long duration,
         Long reservedCount,
-        Long remainingSeats
+        Long remainingSeats,
+        boolean isReserved
 ) {
-    public static MusicalResponse fromEntity(Musical musical) {
+    public static MusicalResponse fromEntity(Musical musical, boolean isReserved) {
     	Long reservedCount = musical.getReservedCount();
         Long totalSeats = (long) Musical.TOTAL_SEATS;
         Long remainingSeats = totalSeats - reservedCount;
@@ -38,6 +39,7 @@ public record MusicalResponse(
                 .duration(musical.getDuration())
                 .reservedCount(musical.getReservedCount())
                 .remainingSeats(remainingSeats)
+                .isReserved(isReserved)
                 .build();
     }
 

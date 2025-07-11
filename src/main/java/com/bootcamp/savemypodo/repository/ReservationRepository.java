@@ -19,6 +19,9 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     // 예매 취소
 	void deleteByUser_IdAndMusical_Id(Long userId, Long musicalId);
+	
+	// isReserved 기능
+	boolean existsByUser_IdAndMusical_Id(Long userId, Long musicalId);
 
 	boolean existsByUserAndMusicalAndSeat(User user, Musical musical, Seat seat);
 
