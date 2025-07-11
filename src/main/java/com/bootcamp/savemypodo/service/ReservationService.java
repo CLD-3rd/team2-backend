@@ -60,7 +60,9 @@ public class ReservationService {
                 .build();
         reservationRepository.save(reservation);
 
-        // + 공연의 reservedCount 증가 로직 추가!
+        // 공연의 reservedCount 증가 
+        musical.setReservedCount(musical.getReservedCount() + 1);
+        musicalRepository.save(musical);
     }
 
     public List<MyReservationResponse> getMyReservationsByUser(User user) {

@@ -11,16 +11,18 @@ import java.time.format.DateTimeFormatter;
 public record MusicalResponse(
         Long id,
         String title,
-        String posterUrl,
-        String description,
-        LocalDate date,
         String timeRange,
-        Long price,
-        String location,
-        Long duration,
-        Long reservedCount,
+        String description,
         Long remainingSeats,
-        boolean isReserved
+        Long totalSeats,
+        Long price,
+        String posterUrl,
+        boolean isReserved,
+        LocalDate date,
+        String location,
+        Long duration
+        
+        
 ) {
     public static MusicalResponse fromEntity(Musical musical, boolean isReserved) {
     	Long reservedCount = musical.getReservedCount();
@@ -37,9 +39,9 @@ public record MusicalResponse(
                 .price(musical.getPrice())
                 .location(musical.getLocation())
                 .duration(musical.getDuration())
-                .reservedCount(musical.getReservedCount())
                 .remainingSeats(remainingSeats)
                 .isReserved(isReserved)
+                .totalSeats(totalSeats)
                 .build();
     }
 
