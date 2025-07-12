@@ -2,6 +2,7 @@ package com.bootcamp.savemypodo.dto.musical;
 
 import com.bootcamp.savemypodo.entity.Musical;
 import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -49,6 +50,26 @@ public record MusicalResponse(
         // 원하는 시간 형식 지정
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
         // 형식에 맞게 문자열 생성
-        return startTime.format(formatter) + " ~ " + startTime.format(formatter);
+        return startTime.format(formatter) + " ~ " + endTime.format(formatter);
+    }   
+    
+    // redis를 함수
+    public MusicalResponse withIsReserved(boolean newIsReserved) {
+        return new MusicalResponse(
+        		this.id(),
+                this.title(),
+                this.timeRange(),
+                this.description(),
+                this.remainingSeats(),
+                this.totalSeats(),
+                this.price(),
+                this.posterUrl(),
+                newIsReserved, // isReserved만 새로 지정
+                this.date(),
+                this.location(),
+                this.duration()
+        );
     }
+    
+    
 }

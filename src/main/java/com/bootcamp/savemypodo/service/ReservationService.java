@@ -28,6 +28,7 @@ public class ReservationService {
     private final MusicalRepository musicalRepository;
     private final ReservationRepository reservationRepository;
     private final SeatRepository seatRepository;
+    private final RedisMusicalService redisMusicalService;
 
     @Transactional
     public void createReservation(User user, Long mid, String seatName) {
@@ -63,6 +64,9 @@ public class ReservationService {
         // 공연의 reservedCount 증가 
         musical.setReservedCount(musical.getReservedCount() + 1);
         musicalRepository.save(musical);
+        
+        // 캐시 업데이트: remainingSeats–, isReserved=true
+        redisMusicalService.updateOrRefreshCache(user.getId(), mid, -1, true);
     }
 
     public List<MyReservationResponse> getMyReservationsByUser(User user) {
@@ -91,6 +95,9 @@ public class ReservationService {
         int updatedCount = Math.max(0, (int) (musical.getReservedCount() - 1)); // 음수 방지
         musical.setReservedCount((long) updatedCount);
         musicalRepository.save(musical);
+        
+        // 캐시 업데이트: remainingSeats+, isReserved=false
+        redisMusicalService.updateOrRefreshCache(userId, musicalId, +1, true);
     }
 }
 
