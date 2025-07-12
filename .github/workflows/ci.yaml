@@ -74,3 +74,26 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:${{ env.SHORT_SHA }}
+
+      - name: Clone team2-infra repository
+        uses: actions/checkout@v4
+        with:
+          repository: CLD-3rd/team2-infra
+          token: ${{ secrets.CI_PUSH_PAT }}
+          path: team2-infra
+          ref: dev
+
+      - name: Update image tag in manifests
+        run: |
+          sed -i "s|image: .*/.*:.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:${{ env.SHORT_SHA }}|" \
+            team2-infra/manifests/base/savemypodo-app/savemypodo-app.yaml
+
+      - name: Commit and push updated manifest
+        run: |
+          cd team2-infra
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add manifests/base/savemypodo-app/savemypodo-app.yaml
+          git commit -m "Update image tag to ${{ env.SHORT_SHA }}"
+          git push origin dev
+
