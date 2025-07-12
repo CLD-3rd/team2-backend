@@ -10,6 +10,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 
 
@@ -18,6 +19,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+
 
 @Configuration
 @EnableCaching
@@ -52,6 +55,7 @@ public class RedisConfig {
     }
 
     // 공연, 좌석 캐싱 용 (Object 기반)
+
     /*@Bean
     public RedisTemplate<String, Object> objectRedisTemplate() {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
@@ -90,5 +94,4 @@ public class RedisConfig {
         return template;
     }
     
-   
 }

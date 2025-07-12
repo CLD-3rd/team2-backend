@@ -40,5 +40,4 @@ public class ReservationController {
         return ResponseEntity.ok(new ReservationResponse("성공적으로 취소 되었습니다."));
     }
 
-    
 }

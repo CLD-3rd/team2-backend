@@ -2,7 +2,7 @@ package com.bootcamp.savemypodo.dto.musical;
 
 import com.bootcamp.savemypodo.entity.Musical;
 import lombok.Builder;
-import lombok.Getter;
+
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -53,7 +53,7 @@ public record MusicalResponse(
         return startTime.format(formatter) + " ~ " + endTime.format(formatter);
     }   
     
-    // redis를 함수
+    // redis에서  쓰이는 함수
     public MusicalResponse withIsReserved(boolean newIsReserved) {
         return new MusicalResponse(
         		this.id(),
@@ -70,6 +70,5 @@ public record MusicalResponse(
                 this.duration()
         );
     }
-    
     
 }
