@@ -29,6 +29,8 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final SeatRepository seatRepository;
     private final RedisMusicalService redisMusicalService;
+    private final RedisSeatService redisSeatService;
+
 
     @Transactional
     public void createReservation(User user, Long mid, String seatName) {
@@ -67,6 +69,8 @@ public class ReservationService {
         
         // 캐시 업데이트: remainingSeats–, isReserved=true
         redisMusicalService.updateOrRefreshCache(user.getId(), mid, -1, true);
+//      redisSeatService.cacheSeatsForMusical(mid);  // 좌석 추가되었으니 재캐싱
+
     }
 
     public List<MyReservationResponse> getMyReservationsByUser(User user) {
@@ -98,6 +102,8 @@ public class ReservationService {
         
         // 캐시 업데이트: remainingSeats+, isReserved=false
         redisMusicalService.updateOrRefreshCache(userId, musicalId, +1, true);
+//        redisSeatService.cacheSeatsForMusical(musicalId);  // 좌석 삭제되었으니 재캐싱
+
     }
 }
 
