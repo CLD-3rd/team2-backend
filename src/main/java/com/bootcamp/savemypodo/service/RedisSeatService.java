@@ -62,4 +62,21 @@ public class RedisSeatService {
                 .map(Seat::getSeatName)
                 .toList();
     }
+    
+    public void cacheSeatsForMusicalIfHot(Long musicalId) {
+        if (!isHotMusical(musicalId)) {
+            log.info("🔥 {}번 뮤지컬은 인기 공연이 아님 → 캐시 건너뜀", musicalId);
+            return;
+        }
+
+        String key = SEAT_KEY_PREFIX + musicalId;
+
+        List<String> seatNames = seatRepository.findByMusical_Id(musicalId).stream()
+                .map(Seat::getSeatName)
+                .toList();
+
+        redisTemplate.opsForValue().set(key, seatNames, TTL);
+        log.info("💾 Redis 좌석 캐시 저장 완료: key={}, size={}", key, seatNames.size());
+    }
+
 }
