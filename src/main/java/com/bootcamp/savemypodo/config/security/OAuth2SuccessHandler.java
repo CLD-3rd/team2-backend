@@ -6,6 +6,7 @@ import com.bootcamp.savemypodo.global.exception.ErrorCode;
 import com.bootcamp.savemypodo.global.exception.UserException;
 import com.bootcamp.savemypodo.repository.UserRepository;
 import com.bootcamp.savemypodo.entity.CustomOAuth2User;
+import com.bootcamp.savemypodo.service.RedisRefreshTokenService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,6 +27,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
+    private final RedisRefreshTokenService redisRefreshTokenService;
 
     @Value("${app.base-url}")
     private String baseUrl;
@@ -40,16 +42,16 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
+        log.info("✅ [OAuth2 Success] 사용자 인증 성공: {}", email);
+
         // ✅ JWT 발급
         String accessToken = jwtTokenProvider.createAccessToken(user);
         String refreshToken = jwtTokenProvider.createRefreshToken(user);
 
-        // 👉 로그 출력
-        log.info("[OAuth2 Success] 사용자 인증 성공: {}", email);
+        // ✅ RefreshToken 저장 (Redis)
+        redisRefreshTokenService.save(user.getId(), refreshToken);
 
-        // ✅ RefreshToken 저장
-        user.updateRefreshToken(refreshToken);
-        userRepository.save(user);
+        log.info("✅ [OAuth2 Success] RefreshToken 저장 성공");
 
         // ✅ JWT 쿠키로 전달 (보안용으로 HttpOnly 설정 추천)
         Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
