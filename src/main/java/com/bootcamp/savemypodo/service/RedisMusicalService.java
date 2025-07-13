@@ -24,98 +24,55 @@ public class RedisMusicalService {
 	@Autowired
 	private ObjectMapper objectMapper;
 	
+	@Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+	
 	private static final String BASE_KEY = "popular:musicals";
     private static final Duration TTL = Duration.ofMinutes(10);
 
     private final @Qualifier("objectRedisTemplate") RedisTemplate<String, Object> redis;
     private final ReservationRepository reservationRepository;
-    /*
-    @SuppressWarnings("unchecked")
-    public void updateMusicalEntry(Long musicalId, int deltaRemaining, boolean isReserved, Long userId) {
-        for (String suffix : List.of("new", "hot")) {
-            String key = BASE_KEY + ":" + suffix;
-            List<?> rawList = (List<?>) redis.opsForValue().get(key);
-            if (rawList == null) continue;
-
-            List<RedisMusicalResponse> list = rawList.stream()
-                .map(item -> objectMapper.convertValue(item, RedisMusicalResponse.class))
-                .collect(Collectors.toList());
-            
-            List<RedisMusicalResponse> updated = list.stream()
-                    .map((RedisMusicalResponse mr) -> {                        // ← 람다 파라미터에 타입 명시
-                        boolean nowReserved = userId != null
-                            && reservationRepository.existsByUser_IdAndMusical_Id(userId, mr.getId());
-                        return mr.updateEntry(deltaRemaining, nowReserved);
-                    })
-                    .collect(Collectors.toList());    
-
-            redis.opsForValue().set(key, updated, TTL);
-            log.info("[Cache] {} updated: musical={}, Δrem={}, reserved={}",
-                     key, musicalId, deltaRemaining, isReserved);
-        }
-    }*/
-
-    /**
-     * 로그인 직후 호출: 캐시에 있는 Top5 리스트의 isReserved 플래그만
-     * 현재 userId 기준으로 재설정하여 덮어쓰기
-     * @param userId 로그인한 사용자 ID
-     */
-    /*
-    @SuppressWarnings("unchecked")
-    public void refreshIsReservedForUser(Long userId) {
-    	for (String suffix : List.of("new", "hot")) {
-            String key = BASE_KEY + ":" + suffix;
-            List<?> rawList = (List<?>) redis.opsForValue().get(key);
-            if (rawList == null) continue;
-
-            // objectMapper를 이용해 안전하게 변환
-            List<RedisMusicalResponse> list = rawList.stream()
-                .map((Object item) -> objectMapper.convertValue(item, RedisMusicalResponse.class))
-                .collect(Collectors.toList());
-
-            List<RedisMusicalResponse> updated = list.stream()
-                .map(mr -> {
-                    boolean nowReserved = userId != null
-                        && reservationRepository.existsByUser_IdAndMusical_Id(userId, mr.getId());
-                    return mr.refreshReserved(nowReserved);
-                })
-                .toList();
-
-            redis.opsForValue().set(key, updated, TTL);
-            log.info("[Cache] {} isReserved refreshed for user={}", key, userId);
-        }
-    }*/
+  
     @SuppressWarnings("unchecked")
     public void updateOrRefreshCache(Long userId, Long musicalId, Integer deltaRemaining, Boolean updateRemaining) {
         for (String suffix : List.of("new", "hot")) {
             String key = BASE_KEY + ":" + suffix;
-            List<?> rawList = (List<?>) redis.opsForValue().get(key);
+            List<?> rawList = (List<?>) redisTemplate.opsForValue().get(key);
             if (rawList == null) continue;
 
             List<RedisMusicalResponse> list = rawList.stream()
                 .map(item -> objectMapper.convertValue(item, RedisMusicalResponse.class))
                 .collect(Collectors.toList());
 
-            List<RedisMusicalResponse> updated = list.stream()
-                .map(mr -> {
-                    boolean nowReserved = userId != null &&
-                        reservationRepository.existsByUser_IdAndMusical_Id(userId, mr.getId());
+            List<RedisMusicalResponse> updated;
 
-                    if (Boolean.TRUE.equals(updateRemaining) && musicalId != null && mr.getId().equals(musicalId)) {
-                        // 좌석수와 isReserved 동시 갱신
-                        return mr.updateEntry(deltaRemaining, nowReserved);
-                    } else {
-                        // isReserved만 갱신
-                        return mr.refreshReserved(nowReserved);
-                    }
-                })
-                .collect(Collectors.toList());
-
-            redis.opsForValue().set(key, updated, TTL);
-            if (Boolean.TRUE.equals(updateRemaining)) {
-                log.info("[Cache] {} updated: musical={}, Δrem={}, userId={}", key, musicalId, deltaRemaining, userId);
+            // 1. 로그아웃 상태 이면 모든 isReserved를 false로
+            if (userId == null) {
+                updated = list.stream()
+                    .map(mr -> mr.refreshReserved(false))
+                    .collect(Collectors.toList());
+                log.info("[Cache] {}: 모든 isReserved를 false로 변경", key);
             } else {
+                // 2. 기존 방식대로 isReserved 또는 잔여좌석 갱신
+                updated = list.stream()
+                    .map(mr -> {
+                        boolean nowReserved = reservationRepository.existsByUser_IdAndMusical_Id(userId, mr.getId());
+                        if (Boolean.TRUE.equals(updateRemaining) && musicalId != null && mr.getId().equals(musicalId)) {
+                            // 좌석수와 isReserved 동시 갱신
+                            return mr.updateEntry(deltaRemaining, nowReserved);
+                        } else {
+                            // isReserved만 갱신
+                            return mr.refreshReserved(nowReserved);
+                        }
+                    })
+                    .collect(Collectors.toList());
                 log.info("[Cache] {} isReserved refreshed for user={}", key, userId);
+            }
+
+            redisTemplate.opsForValue().set(key, updated, TTL);
+
+            if (Boolean.TRUE.equals(updateRemaining) && userId != null) {
+                log.info("[Cache] {} updated: musical={}, Δrem={}, userId={}", key, musicalId, deltaRemaining, userId);
             }
         }
     }

@@ -4,6 +4,7 @@ import com.bootcamp.savemypodo.dto.reservation.MyReservationResponse;
 import com.bootcamp.savemypodo.dto.user.UserResponse;
 import com.bootcamp.savemypodo.entity.User;
 import com.bootcamp.savemypodo.repository.UserRepository;
+import com.bootcamp.savemypodo.service.RedisMusicalService;
 import com.bootcamp.savemypodo.service.RedisRefreshTokenService;
 import com.bootcamp.savemypodo.service.ReservationService;
 import jakarta.servlet.http.Cookie;
@@ -29,6 +30,7 @@ public class UserController {
 
     private final RedisRefreshTokenService redisRefreshTokenService;
     private final ReservationService reservationService;
+    private final RedisMusicalService redisMusicalService;
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@AuthenticationPrincipal User user,
@@ -38,7 +40,11 @@ public class UserController {
         // 1. Redis에서 RefreshToken 삭제
         redisRefreshTokenService.deleteRefreshToken(user.getId().toString());
         log.info("[Logout] Redis에서 RefreshToken 삭제 완료: userId={}", user.getId());
+        
+        // 로그아웃시 캐싱 수정
+        redisMusicalService.updateOrRefreshCache(null, null, null, false);
 
+        
         // 2. 클라이언트 쿠키 삭제 (Set-Cookie로 빈 값 전달)
         Cookie accessTokenCookie = new Cookie("accessToken", null);
         accessTokenCookie.setHttpOnly(true);

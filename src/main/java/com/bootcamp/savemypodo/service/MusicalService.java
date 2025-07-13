@@ -42,8 +42,7 @@ public class MusicalService {
     
     public List<MusicalResponse> getPerformances(SortType sort, Long userId) {
     
-    	
-    	// 1) MINE 처리 (캐시 없이 전체 조회)
+    	 // 1) MINE 처리 (캐시 없이 전체 조회)
         if (sort == SortType.MINE) {
             List<Musical> mine = (userId != null)
                 ? musicalRepository.findAllByUserId(userId)
@@ -51,28 +50,25 @@ public class MusicalService {
             return toResponses(mine, userId);
         }
 
-        // 2) Top5 캐시 키 결정
-        String cacheKey = (sort == SortType.MOST_RESERVED)
-            ? BASE_KEY + ":hot"
-            : BASE_KEY + ":new";
+        // 2) 최신순 캐시 키
+        String latestKey = BASE_KEY + ":new";
+        String hotKey = BASE_KEY + ":hot";
 
-        // 3) 캐시 조회
-        Object raw = redis.opsForValue().get(cacheKey);
+        // 3) 최신순 캐시 조회
+        Object raw = redis.opsForValue().get(latestKey);
         List<MusicalResponse> top5 = null;
         if (raw != null) {
-            log.info("✅ Cache hit for key {}", cacheKey);
+            log.info("✅ Cache hit for key {}", latestKey);
 
             @SuppressWarnings("unchecked")
-            List<?> rawList = (List<?>) raw;            // 명시적 캐스팅
+            List<?> rawList = (List<?>) raw; // 명시적 캐스팅
             if (!rawList.isEmpty()) {
                 Object first = rawList.get(0);
                 if (first instanceof MusicalResponse) {
-                    // 이미 DTO 리스트인 경우
                     @SuppressWarnings("unchecked")
                     List<MusicalResponse> casted = (List<MusicalResponse>) rawList;
                     top5 = casted;
                 } else {
-                    // 구(JSON) 포맷 → LinkedHashMap 리스트인 경우
                     top5 = rawList.stream()
                         .map((Object item) ->
                             objectMapper.convertValue(item, MusicalResponse.class)
@@ -80,37 +76,42 @@ public class MusicalService {
                         .collect(Collectors.toList());
                 }
             }
-            // 로그인을 하면 redis의 값 변경(isReserved만)
+            // 로그인한 경우 isReserved만 갱신
             if (userId != null && top5 != null) {
                 redisMusicalService.updateOrRefreshCache(userId, null, null, false);
-                
+
                 top5 = top5.stream()
-                		.map((MusicalResponse mr) -> {
-                	        boolean nowReserved = reservationRepository.existsByUser_IdAndMusical_Id(userId, mr.id());
-                	        return mr.withIsReserved(nowReserved);
-                	    })
-                	    .collect(Collectors.toList());
+                    .map((MusicalResponse mr) -> {
+                        boolean nowReserved = reservationRepository.existsByUser_IdAndMusical_Id(userId, mr.id());
+                        return mr.withIsReserved(nowReserved);
+                    })
+                    .collect(Collectors.toList());
             }
-            
         } else {
-            log.info("❌ Cache miss for key {}", cacheKey);
+            log.info("❌ Cache miss for key {}", latestKey);
         }
 
-        // 4) 캐시 미스 시 DB에서 Top5 조회 & 캐시 저장
+        // 4) 최신순 캐시 미스 시 DB에서 Top5 조회 & 캐시 저장
         if (top5 == null) {
-            log.info("Loading Top5 from DB for key {}", cacheKey);
-            List<Musical> rawTop5 = (sort == SortType.MOST_RESERVED)
-                ? musicalRepository.findTop5ByOrderByReservedCountDesc()
-                : musicalRepository.findTop5ByOrderByDateDesc();
+            log.info("Loading Top5 from DB for key {}", latestKey);
+            List<Musical> rawTop5 = musicalRepository.findTop5ByOrderByDateDesc();
             top5 = toResponses(rawTop5, userId);
-            redis.opsForValue().set(cacheKey, top5, TTL);
-            log.info("💾 Saved {} items to cache key {}", top5.size(), cacheKey);
+            redis.opsForValue().set(latestKey, top5, TTL);
+            log.info("💾 Saved {} items to cache key {}", top5.size(), latestKey);
         }
 
-        // 5) 전체 리스트에서 Top5 제외하여 나머지 조회
-        List<Musical> allRaw = (sort == SortType.MOST_RESERVED)
-            ? musicalRepository.findAllByOrderByReservedCountDesc()
-            : musicalRepository.findAllByLatest();
+        // ⭐️ 5) 항상 예매많은순 Top5도 함께 캐싱 (응답은 X)
+        Object hotRaw = redis.opsForValue().get(hotKey);
+        if (hotRaw == null) {
+            log.info("Loading Hot Top5 from DB for key {}", hotKey);
+            List<Musical> hotTop5 = musicalRepository.findTop5ByOrderByReservedCountDesc();
+            List<MusicalResponse> hotTop5Response = toResponses(hotTop5, userId);
+            redis.opsForValue().set(hotKey, hotTop5Response, TTL);
+            log.info("💾 Saved {} items to cache key {}", hotTop5Response.size(), hotKey);
+        }
+
+        // 6) 전체 리스트에서 Top5 제외하여 나머지 조회 (최신순 기준)
+        List<Musical> allRaw = musicalRepository.findAllByLatest();
 
         Set<Long> top5Ids = top5.stream()
             .map(MusicalResponse::id)
@@ -125,7 +126,7 @@ public class MusicalService {
             })
             .collect(Collectors.toList());
 
-        // 6) 합쳐서 반환
+        // 7) 합쳐서 반환
         List<MusicalResponse> combined = new ArrayList<>(top5.size() + rest.size());
         combined.addAll(top5);
         combined.addAll(rest);
