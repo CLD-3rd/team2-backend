@@ -1,9 +1,8 @@
-package com.bootcamp.savemypodo.service;
+package com.bootcamp.savemypodo.service.redis;
 
 import com.bootcamp.savemypodo.entity.Seat;
 import com.bootcamp.savemypodo.repository.SeatRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -26,7 +24,7 @@ public class RedisSeatService {
     private static final String HOT_KEY = "popular:musicals:hot";
     private static final Duration TTL = Duration.ofMinutes(10);
 
-   private boolean isHotMusical(Long musicalId) {
+    private boolean isHotMusical(Long musicalId) {
         Object raw = redisTemplate.opsForValue().get(HOT_KEY);
         if (raw instanceof List<?> list) {
             return list.stream().anyMatch(item -> {
@@ -36,7 +34,7 @@ public class RedisSeatService {
         }
         return false;
     }
-    
+
     public void cacheSeatsForMusicalIfHot(Long musicalId) {
         if (!isHotMusical(musicalId)) {
             log.info("🔥 {}번 뮤지컬은 인기 공연이 아님 → 캐시 건너뜀", musicalId);

@@ -1,16 +1,12 @@
-package com.bootcamp.savemypodo.service;
+package com.bootcamp.savemypodo.service.redis;
 
 import com.bootcamp.savemypodo.config.jwt.JwtTokenProvider;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -32,13 +28,13 @@ public class RedisRefreshTokenService {
     public void save(Long userId, String refreshToken) {
         long ttl = jwtTokenProvider.getRefreshTokenValidity(); // ms 단위
         try {
-        redisTemplate.opsForValue().set(
-                generateKey(userId),
-                refreshToken,
-                Duration.ofMillis(ttl)
-        		);
-        } catch	(Exception e) {
-        	log.warn("Redis 접근 불가 – 리프레시 토큰 저장 생략: {}", e.toString());
+            redisTemplate.opsForValue().set(
+                    generateKey(userId),
+                    refreshToken,
+                    Duration.ofMillis(ttl)
+            );
+        } catch (Exception e) {
+            log.warn("Redis 접근 불가 – 리프레시 토큰 저장 생략: {}", e.toString());
         }
     }
 

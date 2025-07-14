@@ -11,10 +11,11 @@ import com.bootcamp.savemypodo.global.exception.ReservationException;
 import com.bootcamp.savemypodo.repository.MusicalRepository;
 import com.bootcamp.savemypodo.repository.ReservationRepository;
 import com.bootcamp.savemypodo.repository.SeatRepository;
+import com.bootcamp.savemypodo.service.redis.RedisMusicalService;
+import com.bootcamp.savemypodo.service.redis.RedisSeatService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,84 +28,84 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ReservationService {
 
-	private final MusicalRepository musicalRepository;
-	private final ReservationRepository reservationRepository;
-	private final SeatRepository seatRepository;
-	private final RedisMusicalService redisMusicalService;
-	private final RedisSeatService redisSeatService;
+    private final MusicalRepository musicalRepository;
+    private final ReservationRepository reservationRepository;
+    private final SeatRepository seatRepository;
+    private final RedisMusicalService redisMusicalService;
+    private final RedisSeatService redisSeatService;
 
-	@Transactional
-	public void createReservation(User user, Long mid, String seatName) {
+    @Transactional
+    public void createReservation(User user, Long mid, String seatName) {
 
-		boolean user_reserved = reservationRepository.existsByUser_IdAndMusical_Id(user.getId(), mid);
-		if (user_reserved) {
-			throw new ReservationException(ErrorCode.ALREADY_RESERVED_MUSICAL);
-		}
+        boolean user_reserved = reservationRepository.existsByUser_IdAndMusical_Id(user.getId(), mid);
+        if (user_reserved) {
+            throw new ReservationException(ErrorCode.ALREADY_RESERVED_MUSICAL);
+        }
 
-		Optional<Seat> existingSeat = seatRepository.findByMusicalIdAndSeatName(mid, seatName);
-		if (existingSeat.isPresent()) {
-			throw new ReservationException(ErrorCode.SEAT_ALREADY_RESERVED);
-		}
+        Optional<Seat> existingSeat = seatRepository.findByMusicalIdAndSeatName(mid, seatName);
+        if (existingSeat.isPresent()) {
+            throw new ReservationException(ErrorCode.SEAT_ALREADY_RESERVED);
+        }
 
-		Musical musical = musicalRepository.findById(mid)
-				.orElseThrow(() -> new MusicalException(ErrorCode.MUSICAL_NOT_FOUND));
+        Musical musical = musicalRepository.findById(mid)
+                .orElseThrow(() -> new MusicalException(ErrorCode.MUSICAL_NOT_FOUND));
 
-		// 새로운 좌석 생성 및 저장
-		Seat seat = Seat.builder().musical(musical).seatName(seatName).build();
-		seatRepository.save(seat);
+        // 새로운 좌석 생성 및 저장
+        Seat seat = Seat.builder().musical(musical).seatName(seatName).build();
+        seatRepository.save(seat);
 
-		// 예약 생성
-		Reservation reservation = Reservation.builder().user(user).musical(musical).seat(seat).build();
-		reservationRepository.save(reservation);
+        // 예약 생성
+        Reservation reservation = Reservation.builder().user(user).musical(musical).seat(seat).build();
+        reservationRepository.save(reservation);
 
-		// 공연의 reservedCount 증가
-		musical.setReservedCount(musical.getReservedCount() + 1);
-		musicalRepository.save(musical);
-		
-		try {
-		// 캐시 업데이트: remainingSeats–, isReserved=true
-		redisMusicalService.updateOrRefreshCache(user.getId(), mid, -1, true);
-		// 좌석 추가되었으니 재캐싱
-		redisSeatService.cacheSeatsForMusicalIfHot(mid);
-		} catch (Exception e) {
-			log.warn("Redis 접근 불가 – 캐시 업데이트 생략(createReservation): {}", e.toString());
-		}
+        // 공연의 reservedCount 증가
+        musical.setReservedCount(musical.getReservedCount() + 1);
+        musicalRepository.save(musical);
 
-	}
+        try {
+            // 캐시 업데이트: remainingSeats–, isReserved=true
+            redisMusicalService.updateOrRefreshCache(user.getId(), mid, -1, true);
+            // 좌석 추가되었으니 재캐싱
+            redisSeatService.cacheSeatsForMusicalIfHot(mid);
+        } catch (Exception e) {
+            log.warn("Redis 접근 불가 – 캐시 업데이트 생략(createReservation): {}", e.toString());
+        }
 
-	public List<MyReservationResponse> getMyReservationsByUser(User user) {
-		List<Reservation> reservations = reservationRepository.findAllByUser(user);
-		return reservations.stream().map(MyReservationResponse::fromEntity).collect(Collectors.toList());
-	}
+    }
 
-	@Transactional
-	public void cancelReservation(Long userId, Long musicalId) {
-		// 1. 먼저 예약이 실제로 존재하는지 확인
-		Optional<Reservation> reservationOpt = reservationRepository.findByUser_IdAndMusical_Id(userId, musicalId);
+    public List<MyReservationResponse> getMyReservationsByUser(User user) {
+        List<Reservation> reservations = reservationRepository.findAllByUser(user);
+        return reservations.stream().map(MyReservationResponse::fromEntity).collect(Collectors.toList());
+    }
 
-		if (reservationOpt.isEmpty()) {
-			throw new NoSuchElementException("해당 예매 내역이 존재하지 않습니다.");
-		}
+    @Transactional
+    public void cancelReservation(Long userId, Long musicalId) {
+        // 1. 먼저 예약이 실제로 존재하는지 확인
+        Optional<Reservation> reservationOpt = reservationRepository.findByUser_IdAndMusical_Id(userId, musicalId);
 
-		// 2. 예매 삭제
-		reservationRepository.deleteByUser_IdAndMusical_Id(userId, musicalId);
+        if (reservationOpt.isEmpty()) {
+            throw new NoSuchElementException("해당 예매 내역이 존재하지 않습니다.");
+        }
 
-		// 3. reservedCount(예약자 수) 감소
-		Musical musical = musicalRepository.findById(musicalId)
-				.orElseThrow(() -> new NoSuchElementException("해당 뮤지컬이 존재하지 않습니다."));
+        // 2. 예매 삭제
+        reservationRepository.deleteByUser_IdAndMusical_Id(userId, musicalId);
 
-		int updatedCount = Math.max(0, (int) (musical.getReservedCount() - 1)); // 음수 방지
-		musical.setReservedCount((long) updatedCount);
-		musicalRepository.save(musical);
-		
-		try {
-		// 캐시 업데이트: remainingSeats+, isReserved=false
-		redisMusicalService.updateOrRefreshCache(userId, musicalId, +1, true);
+        // 3. reservedCount(예약자 수) 감소
+        Musical musical = musicalRepository.findById(musicalId)
+                .orElseThrow(() -> new NoSuchElementException("해당 뮤지컬이 존재하지 않습니다."));
+
+        int updatedCount = Math.max(0, (int) (musical.getReservedCount() - 1)); // 음수 방지
+        musical.setReservedCount((long) updatedCount);
+        musicalRepository.save(musical);
+
+        try {
+            // 캐시 업데이트: remainingSeats+, isReserved=false
+            redisMusicalService.updateOrRefreshCache(userId, musicalId, +1, true);
 //        redisSeatService.cacheSeatsForMusical(musicalId);  // 좌석 삭제되었으니 재캐싱
-		} catch (Exception e) {
-	        log.warn("Redis 접근 불가 – 캐시 업데이트 생략(cancelReservation): {}", e.toString());
-		}
+        } catch (Exception e) {
+            log.warn("Redis 접근 불가 – 캐시 업데이트 생략(cancelReservation): {}", e.toString());
+        }
 
 
-	}
+    }
 }
