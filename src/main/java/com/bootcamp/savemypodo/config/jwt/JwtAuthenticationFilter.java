@@ -33,9 +33,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
+        
         String uri = request.getRequestURI();
-        if (uri.equals("/") || uri.startsWith("/login")) {
-        	filterChain.doFilter(request, response); // 그냥 통과
+        if (uri.equals("/") || uri.startsWith("/login") || uri.equals("/api/musicals") || uri.equals("/actuator/prometheus") || uri.equals("/api/user/me")) {
+            filterChain.doFilter(request, response); // 그냥 통과
         /*if (uri.equals("/") || uri.startsWith("/login") || uri.equals("/api/musicals")) {
         	filterChain.doFilter(request, response);*/
             return;
@@ -44,9 +45,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String accessToken = getTokenFromCookie(request, "accessToken");
         String refreshToken = getTokenFromCookie(request, "refreshToken");
 
-        log.debug("🔍 [JWT 필터] 요청 URI: {}", request.getRequestURI());
-        log.debug("🔑 accessToken 존재 여부: {}", accessToken != null);
-        log.debug("🔑 refreshToken 존재 여부: {}", refreshToken != null);
+        log.info("🔍 [JWT 필터] 요청 URI: {}", request.getRequestURI());
+        log.info("🔑 accessToken 존재 여부: {}", accessToken != null);
+        log.info("🔑 refreshToken 존재 여부: {}", refreshToken != null);
 
         try {
             if (accessToken != null && jwtTokenProvider.validateToken(accessToken)) {
@@ -88,17 +89,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 setAuthenticationFromAccessToken(newAccessToken, request);
                 log.info("🔄 Access Token 재발급 완료 for user: {}", email);
-            // 수정한 부분
+                // 수정한 부분
             } else {
-            	log.debug("🔒 토큰 없음—익명 사용자로 진행");
+                log.info("🔒 토큰 없음—익명 사용자로 진행");
                 filterChain.doFilter(request, response);
                 return;
-            	
-            	/*log.warn("❗ 유효한 토큰이 존재하지 않음");
-                throw new UserException(ErrorCode.INVALID_TOKEN); */            
             }
-                     
-        } catch (UserException e) {            
+
+        } catch (UserException e) {
             log.warn("🚫 [JWT Filter] UserException 발생 - {}: {}", e.getErrorCode(), e.getMessage());
             setErrorResponse(response, e.getErrorCode(), request.getRequestURI());
             return; // ❗ 더 이상 필터 체인을 진행하지 않음
@@ -134,12 +132,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         response.setCharacterEncoding("UTF-8");
 
         String body = String.format("""
-        {
-          "status": %d,
-          "error": "%s",
-          "path": "%s"
-        }
-        """, errorCode.getStatus().value(), errorCode.getMessage(), path);
+                {
+                  "status": %d,
+                  "error": "%s",
+                  "path": "%s"
+                }
+                """, errorCode.getStatus().value(), errorCode.getMessage(), path);
 
         response.getWriter().write(body);
     }
