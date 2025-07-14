@@ -1,14 +1,13 @@
 package com.bootcamp.savemypodo.config.security;
 
 import com.bootcamp.savemypodo.config.jwt.JwtAuthenticationFilter;
-import com.bootcamp.savemypodo.service.CustomOAuth2UserService;
+import com.bootcamp.savemypodo.service.auth.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -22,21 +21,10 @@ public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
 
-    @Value("${app.base-url}")
-    private String baseUrl;
-
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers(
-                "/favicon.ico",
-                "/resources/**",
-                "/static/**",
-                "/css/**",
-                "/js/**",
-                "/images/**",
-                "/index.html"
-        );
-    }
+    @Value("${frontend.url}")
+    private String frontendUrl;
+    @Value("${backend.url}")
+    private String backendUrl;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, OAuth2SuccessHandler oAuth2SuccessHandler, OAuth2FailureHandler oAuth2FailureHandler,
@@ -45,7 +33,7 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of(baseUrl)); // 프론트 주소
+                    config.setAllowedOrigins(List.of(frontendUrl)); // 프론트 주소
                     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     config.setAllowedHeaders(List.of("*"));
                     config.setAllowCredentials(true);

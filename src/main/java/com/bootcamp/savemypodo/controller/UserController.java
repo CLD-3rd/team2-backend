@@ -3,12 +3,13 @@ package com.bootcamp.savemypodo.controller;
 import com.bootcamp.savemypodo.dto.reservation.MyReservationResponse;
 import com.bootcamp.savemypodo.dto.user.UserResponse;
 import com.bootcamp.savemypodo.entity.User;
-import com.bootcamp.savemypodo.repository.UserRepository;
-import com.bootcamp.savemypodo.service.RedisMusicalService;
-import com.bootcamp.savemypodo.service.RedisRefreshTokenService;
 import com.bootcamp.savemypodo.service.ReservationService;
+import com.bootcamp.savemypodo.service.redis.RedisMusicalService;
+import com.bootcamp.savemypodo.service.redis.RedisRefreshTokenService;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +18,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 
@@ -40,11 +39,11 @@ public class UserController {
         // 1. Redis에서 RefreshToken 삭제
         redisRefreshTokenService.deleteRefreshToken(user.getId().toString());
         log.info("[Logout] Redis에서 RefreshToken 삭제 완료: userId={}", user.getId());
-        
+
         // 로그아웃시 캐싱 수정
         redisMusicalService.updateOrRefreshCache(null, null, null, false);
 
-        
+
         // 2. 클라이언트 쿠키 삭제 (Set-Cookie로 빈 값 전달)
         Cookie accessTokenCookie = new Cookie("accessToken", null);
         accessTokenCookie.setHttpOnly(true);

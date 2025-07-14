@@ -1,4 +1,4 @@
-package com.bootcamp.savemypodo.service;
+package com.bootcamp.savemypodo.service.auth;
 
 import com.bootcamp.savemypodo.config.jwt.JwtTokenProvider;
 import com.bootcamp.savemypodo.entity.User;
@@ -7,7 +7,6 @@ import com.bootcamp.savemypodo.global.exception.UserException;
 import com.bootcamp.savemypodo.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

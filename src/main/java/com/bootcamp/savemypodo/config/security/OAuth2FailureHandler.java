@@ -15,12 +15,12 @@ import java.io.IOException;
 @Slf4j
 public class OAuth2FailureHandler implements AuthenticationFailureHandler {
 
-    @Value("${app.base-url}")
-    private String baseUrl;
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
         // 인증 실패시 메인 페이지로 이동
-        response.sendRedirect(baseUrl);
+        response.sendRedirect(frontendUrl);
     }
 }
