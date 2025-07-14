@@ -50,24 +50,54 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         // ✅ RefreshToken 저장 (Redis)
         redisRefreshTokenService.save(user.getId(), refreshToken);
-
         log.info("✅ [OAuth2 Success] RefreshToken 저장 성공");
 
-        // ✅ JWT 쿠키로 전달 (보안용으로 HttpOnly 설정 추천)
+        setCookiesForProduction(response, accessToken, refreshToken);
+        log.info("✅ [OAuth2 Success] Token 전송 완료");
+        
+        // ✅ 리디렉션
+        response.sendRedirect(frontendUrl); // 프론트 주소로 redirect (ex. http://localhost:3000)
+    }
+
+    private void setCookiesForProduction(HttpServletResponse response, String accessToken, String refreshToken) {
         Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
-        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setSecure(true); // HTTPS only
         accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge((int) (jwtTokenProvider.getAccessTokenValidity() / 1000)); // milliseconds to seconds
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setMaxAge((int) (jwtTokenProvider.getAccessTokenValidity() / 1000));
+        accessTokenCookie.setDomain(".savemypodo.shop"); // 하위 도메인까지 허용
+        accessTokenCookie.setAttribute("SameSite", "None"); // 크로스 도메인 허용
 
         Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
-        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setSecure(true);
         refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setMaxAge((int) (jwtTokenProvider.getRefreshTokenValidity() / 1000));
+        refreshTokenCookie.setDomain(".savemypodo.shop");
+        refreshTokenCookie.setAttribute("SameSite", "None");
 
         response.addCookie(accessTokenCookie);
         response.addCookie(refreshTokenCookie);
+    }
 
-        // ✅ 리디렉션
-        response.sendRedirect(frontendUrl); // 또는 프론트 주소로 redirect (ex. http://localhost:3000)
+    private void setCookiesForLocalTest(HttpServletResponse response, String accessToken, String refreshToken) {
+        Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
+        accessTokenCookie.setSecure(false);
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setMaxAge((int) (jwtTokenProvider.getAccessTokenValidity() / 1000)); // milliseconds to seconds
+        accessTokenCookie.setDomain("localhost"); // 생략 가능
+        accessTokenCookie.setAttribute("SameSite", "Lax");
+
+        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+        refreshTokenCookie.setSecure(false);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setMaxAge((int) (jwtTokenProvider.getRefreshTokenValidity() / 1000)); // milliseconds to seconds
+        refreshTokenCookie.setDomain("localhost"); // 생략 가능
+        refreshTokenCookie.setAttribute("SameSite", "Lax");
+
+        response.addCookie(accessTokenCookie);
+        response.addCookie(refreshTokenCookie);
     }
 }
