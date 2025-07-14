@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import com.bootcamp.savemypodo.dto.musical.MusicalResponse;
 import com.bootcamp.savemypodo.dto.musical.RedisMusicalResponse;
 import com.bootcamp.savemypodo.repository.ReservationRepository;
 
@@ -32,7 +32,7 @@ public class RedisMusicalService {
 
     private final @Qualifier("objectRedisTemplate") RedisTemplate<String, Object> redis;
     private final ReservationRepository reservationRepository;
-  
+    
     @SuppressWarnings("unchecked")
     public void updateOrRefreshCache(Long userId, Long musicalId, Integer deltaRemaining, Boolean updateRemaining) {
         for (String suffix : List.of("new", "hot")) {
