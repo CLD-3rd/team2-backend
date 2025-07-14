@@ -92,7 +92,8 @@ public class ReservationService {
 
 		// 캐시 업데이트: remainingSeats+, isReserved=false
 		redisMusicalService.updateOrRefreshCache(userId, musicalId, +1, true);
-//        redisSeatService.cacheSeatsForMusical(musicalId);  // 좌석 삭제되었으니 재캐싱
+		// 좌석 삭제되었으니 재캐싱
+		redisSeatService.cacheSeatsForMusicalIfHot(musicalId);
 
 	}
 }
