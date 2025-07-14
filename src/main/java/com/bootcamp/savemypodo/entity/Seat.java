@@ -22,6 +22,6 @@ public class Seat {
     @JoinColumn(name = "mid", nullable = false)
     private Musical musical; // 해당 좌석의 공연
 
-    @Column(name = "seat_name", unique = true)
+    @Column(name = "seat_name")
     private String seatName;
 }
