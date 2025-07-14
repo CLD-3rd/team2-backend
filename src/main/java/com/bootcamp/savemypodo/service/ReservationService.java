@@ -13,6 +13,8 @@ import com.bootcamp.savemypodo.repository.ReservationRepository;
 import com.bootcamp.savemypodo.repository.SeatRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +22,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
@@ -57,11 +60,15 @@ public class ReservationService {
 		// 공연의 reservedCount 증가
 		musical.setReservedCount(musical.getReservedCount() + 1);
 		musicalRepository.save(musical);
-
+		
+		try {
 		// 캐시 업데이트: remainingSeats–, isReserved=true
 		redisMusicalService.updateOrRefreshCache(user.getId(), mid, -1, true);
 		// 좌석 추가되었으니 재캐싱
 		redisSeatService.cacheSeatsForMusicalIfHot(mid);
+		} catch (Exception e) {
+			log.warn("Redis 접근 불가 – 캐시 업데이트 생략(createReservation): {}", e.toString());
+		}
 
 	}
 
@@ -89,10 +96,15 @@ public class ReservationService {
 		int updatedCount = Math.max(0, (int) (musical.getReservedCount() - 1)); // 음수 방지
 		musical.setReservedCount((long) updatedCount);
 		musicalRepository.save(musical);
-
+		
+		try {
 		// 캐시 업데이트: remainingSeats+, isReserved=false
 		redisMusicalService.updateOrRefreshCache(userId, musicalId, +1, true);
 //        redisSeatService.cacheSeatsForMusical(musicalId);  // 좌석 삭제되었으니 재캐싱
+		} catch (Exception e) {
+	        log.warn("Redis 접근 불가 – 캐시 업데이트 생략(cancelReservation): {}", e.toString());
+		}
+
 
 	}
 }

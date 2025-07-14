@@ -1,5 +1,5 @@
-# team2-backend
-공연 예매 서비스 - Save My Podo
+# 공연 예매 서비스 - Save My Podo
+team2-backend
 
 ---
 

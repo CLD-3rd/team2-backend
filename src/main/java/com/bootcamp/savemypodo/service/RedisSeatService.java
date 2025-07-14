@@ -26,7 +26,7 @@ public class RedisSeatService {
     private static final String HOT_KEY = "popular:musicals:hot";
     private static final Duration TTL = Duration.ofMinutes(10);
 
-    public boolean isHotMusical(Long musicalId) {
+   private boolean isHotMusical(Long musicalId) {
         Object raw = redisTemplate.opsForValue().get(HOT_KEY);
         if (raw instanceof List<?> list) {
             return list.stream().anyMatch(item -> {
@@ -35,32 +35,6 @@ public class RedisSeatService {
             });
         }
         return false;
-    }
-
-    public List<String> getSeatsWithCachingIfHot(Long musicalId) {
-        String key = SEAT_KEY_PREFIX + musicalId;
-
-        if (isHotMusical(musicalId)) {
-            Object raw = redisTemplate.opsForValue().get(key);
-
-            if (raw instanceof List<?> cached && !cached.isEmpty() && cached.get(0) instanceof String) {
-                log.info("✅ Redis 좌석 캐시 사용: {}", key);
-                return cached.stream().map(Object::toString).toList();
-            }
-
-            log.info("❌ Redis 좌석 캐시 없음 → DB 조회 + 캐시 저장: {}", musicalId);
-            List<String> fromDb = seatRepository.findByMusical_Id(musicalId).stream()
-                    .map(Seat::getSeatName)
-                    .toList();
-
-            redisTemplate.opsForValue().set(key, fromDb, TTL);
-            return fromDb;
-        }
-
-        log.info("📦 일반 공연 → DB 조회만 수행");
-        return seatRepository.findByMusical_Id(musicalId).stream()
-                .map(Seat::getSeatName)
-                .toList();
     }
     
     public void cacheSeatsForMusicalIfHot(Long musicalId) {
