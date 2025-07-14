@@ -89,7 +89,8 @@ public class ReservationService {
 		int updatedCount = Math.max(0, (int) (musical.getReservedCount() - 1)); // 음수 방지
 		musical.setReservedCount((long) updatedCount);
 		musicalRepository.save(musical);
-
+		
+		// redis가 죽어있으면 이것만 실행 안되게 하면 될 듯
 		// 캐시 업데이트: remainingSeats+, isReserved=false
 		redisMusicalService.updateOrRefreshCache(userId, musicalId, +1, true);
 		// 좌석 삭제되었으니 재캐싱
