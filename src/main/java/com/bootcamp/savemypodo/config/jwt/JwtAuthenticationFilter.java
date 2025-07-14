@@ -44,9 +44,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String accessToken = getTokenFromCookie(request, "accessToken");
         String refreshToken = getTokenFromCookie(request, "refreshToken");
 
-        log.debug("🔍 [JWT 필터] 요청 URI: {}", request.getRequestURI());
-        log.debug("🔑 accessToken 존재 여부: {}", accessToken != null);
-        log.debug("🔑 refreshToken 존재 여부: {}", refreshToken != null);
+        log.info("🔍 [JWT 필터] 요청 URI: {}", request.getRequestURI());
+        log.info("🔑 accessToken 존재 여부: {}", accessToken != null);
+        log.info("🔑 refreshToken 존재 여부: {}", refreshToken != null);
 
         try {
             if (accessToken != null && jwtTokenProvider.validateToken(accessToken)) {
@@ -90,12 +90,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 log.info("🔄 Access Token 재발급 완료 for user: {}", email);
                 // 수정한 부분
             } else {
-                log.debug("🔒 토큰 없음—익명 사용자로 진행");
+                log.info("🔒 토큰 없음—익명 사용자로 진행");
                 filterChain.doFilter(request, response);
                 return;
-            	
-            	/*log.warn("❗ 유효한 토큰이 존재하지 않음");
-                throw new UserException(ErrorCode.INVALID_TOKEN); */
             }
 
         } catch (UserException e) {
