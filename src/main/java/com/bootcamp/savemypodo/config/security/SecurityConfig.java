@@ -22,8 +22,10 @@ public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
 
-    @Value("${app.base-url}")
-    private String baseUrl;
+    @Value("${frontend.url}")
+    private String frontendUrl;
+    @Value("${backend.url}")
+    private String backendUrl;
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
@@ -45,7 +47,7 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of(baseUrl)); // 프론트 주소
+                    config.setAllowedOrigins(List.of(frontendUrl)); // 프론트 주소
                     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     config.setAllowedHeaders(List.of("*"));
                     config.setAllowCredentials(true);
