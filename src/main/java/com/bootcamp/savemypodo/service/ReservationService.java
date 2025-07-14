@@ -105,5 +105,6 @@ public class ReservationService {
 	        log.warn("Redis 접근 불가 – 캐시 업데이트 생략(cancelReservation): {}", e.toString());
 		}
 
+
 	}
 }
