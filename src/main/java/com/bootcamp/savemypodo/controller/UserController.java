@@ -3,6 +3,8 @@ package com.bootcamp.savemypodo.controller;
 import com.bootcamp.savemypodo.dto.reservation.MyReservationResponse;
 import com.bootcamp.savemypodo.dto.user.UserResponse;
 import com.bootcamp.savemypodo.entity.User;
+import com.bootcamp.savemypodo.global.exception.ErrorCode;
+import com.bootcamp.savemypodo.global.exception.UserException;
 import com.bootcamp.savemypodo.service.ReservationService;
 import com.bootcamp.savemypodo.service.redis.RedisMusicalService;
 import com.bootcamp.savemypodo.service.redis.RedisRefreshTokenService;
@@ -76,8 +78,19 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public UserResponse getMyInfo(@AuthenticationPrincipal User user) {
-        return new UserResponse(user.getEmail(), user.getNickname(), user.getRole().name());
+    public ResponseEntity<UserResponse> getMyInfo(@AuthenticationPrincipal User user) {
+        if (user == null) {
+            log.warn("❌ [/api/me] 사용자가 존재하지 않음");
+            throw new UserException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        UserResponse userResponse = new UserResponse(
+                user.getEmail(),
+                user.getNickname(),
+                user.getRole().name()
+        );
+
+        return ResponseEntity.ok(userResponse);
     }
 
     @GetMapping("/my-reservations")
