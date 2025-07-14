@@ -53,8 +53,8 @@ public class RedisMusicalService {
                 // 2. 기존 방식대로 isReserved 또는 잔여좌석 갱신
                 updated = list.stream()
                         .map(mr -> {
-                            boolean nowReserved = reservationRepository.existsByUser_IdAndMusical_Id(userId, mr.getId());
-                            if (Boolean.TRUE.equals(updateRemaining) && musicalId != null && mr.getId().equals(musicalId)) {
+                            boolean nowReserved = reservationRepository.existsByUser_IdAndMusical_Id(userId, mr.id());
+                            if (Boolean.TRUE.equals(updateRemaining) && musicalId != null && mr.id().equals(musicalId)) {
                                 // 좌석수와 isReserved 동시 갱신
                                 return mr.updateEntry(deltaRemaining, nowReserved);
                             } else {

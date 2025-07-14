@@ -28,7 +28,7 @@ public class RedisSeatService {
         Object raw = redisTemplate.opsForValue().get(HOT_KEY);
         if (raw instanceof List<?> list) {
             return list.stream().anyMatch(item -> {
-                Long id = objectMapper.convertValue(item, com.bootcamp.savemypodo.dto.musical.RedisMusicalResponse.class).getId();
+                Long id = objectMapper.convertValue(item, com.bootcamp.savemypodo.dto.musical.RedisMusicalResponse.class).id();
                 return id.equals(musicalId);
             });
         }

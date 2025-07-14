@@ -166,7 +166,7 @@ public class MusicalService {
 
         if (hotRaw instanceof List<?> hotList) {
             isHot = hotList.stream().anyMatch(item -> {
-                Long id = objectMapper.convertValue(item, RedisMusicalResponse.class).getId();
+                Long id = objectMapper.convertValue(item, RedisMusicalResponse.class).id();
                 return id.equals(musicalId);
             });
         }
