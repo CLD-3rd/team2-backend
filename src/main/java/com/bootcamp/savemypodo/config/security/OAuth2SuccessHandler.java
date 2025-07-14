@@ -43,7 +43,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
         log.info("✅ [OAuth2 Success] 사용자 인증 성공: {}", email);
-
+        
         // ✅ JWT 발급
         String accessToken = jwtTokenProvider.createAccessToken(user);
         String refreshToken = jwtTokenProvider.createRefreshToken(user);

@@ -59,12 +59,13 @@ public class MusicalService {
         List<MusicalResponse> top5 = null;
         if (raw != null) {
             log.info("✅ Cache hit for key {}", latestKey);
-
+            
+            // 역직렬화 처리, redis에서 꺼낸 데이터가 MusicalResponse 타입이면 그대로 캐스팅 
             @SuppressWarnings("unchecked")
             List<?> rawList = (List<?>) raw; // 명시적 캐스팅
             if (!rawList.isEmpty()) {
                 Object first = rawList.get(0);
-                if (first instanceof MusicalResponse) {
+                if (first instanceof MusicalResponse) { //
                     @SuppressWarnings("unchecked")
                     List<MusicalResponse> casted = (List<MusicalResponse>) rawList;
                     top5 = casted;
