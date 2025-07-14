@@ -11,6 +11,17 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+
+
 @Configuration
 @EnableCaching
 public class RedisConfig {
@@ -44,7 +55,8 @@ public class RedisConfig {
     }
 
     // 공연, 좌석 캐싱 용 (Object 기반)
-    @Bean
+
+    /*@Bean
     public RedisTemplate<String, Object> objectRedisTemplate() {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(redisConnectionFactory());
@@ -55,5 +67,31 @@ public class RedisConfig {
         template.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
 
         return template;
+    }*/
+    
+    // 공연, 좌석 캐싱 용 (Object 기반)
+    @Bean
+    public RedisTemplate<String, Object> objectRedisTemplate() {
+        // 1) ObjectMapper에 JavaTimeModule 등록
+        ObjectMapper om = new ObjectMapper();
+        om.registerModule(new JavaTimeModule());
+        om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        
+        // 2) 이 ObjectMapper를 사용하는 Redis Serializer 생성
+        Jackson2JsonRedisSerializer<Object> ser =
+                new Jackson2JsonRedisSerializer<>(Object.class);
+            ser.setObjectMapper(om);
+
+        // 3) RedisTemplate에 Serializer 장착
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory());
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(ser);
+        template.setHashKeySerializer(new StringRedisSerializer());
+        template.setHashValueSerializer(ser);
+        template.afterPropertiesSet();
+
+        return template;
     }
+    
 }
