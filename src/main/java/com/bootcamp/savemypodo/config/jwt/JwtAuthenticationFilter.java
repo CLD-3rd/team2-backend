@@ -91,6 +91,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 // 수정한 부분
             } else {
                 log.info("🔒 토큰 없음—익명 사용자로 진행");
+                SecurityContextHolder.clearContext();  // 👈 추가
                 filterChain.doFilter(request, response);
                 return;
             }
