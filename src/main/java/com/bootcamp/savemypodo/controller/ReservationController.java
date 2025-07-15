@@ -25,7 +25,7 @@ public class ReservationController {
             @RequestBody ReservationRequest request,
             @AuthenticationPrincipal User user
     ) {
-        reservationService.createReservation(user, musicalId, request.seatName());
+        reservationService.createReservationWithLock(user, musicalId, request.seatName());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ReservationResponse("성공적으로 예약이 되었습니다."));
     }
