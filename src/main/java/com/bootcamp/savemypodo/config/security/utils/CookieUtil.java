@@ -12,7 +12,7 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class CookieUtil {
 
-    JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenProvider jwtTokenProvider;
 
     // ✅ 공통 쿠키 생성 유틸
     public Cookie createCookie(String type, String token) {
