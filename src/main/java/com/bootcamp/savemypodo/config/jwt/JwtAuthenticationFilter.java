@@ -35,8 +35,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        log.info("🔍 [JWT 필터] 시작");
         String uri = request.getRequestURI();
+        log.info("🔍 [JWT 필터] 시작: {}", uri);
         if (uri.equals("/") || uri.startsWith("/login") || uri.equals("/api/musicals") || uri.equals("/actuator/prometheus") || uri.equals("/api/user/me")) {
             filterChain.doFilter(request, response); // 그냥 통과
         /*if (uri.equals("/") || uri.startsWith("/login") || uri.equals("/api/musicals")) {
@@ -47,7 +47,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String accessToken = cookieUtil.getTokenFromCookie(request, "accessToken");
         String refreshToken = cookieUtil.getTokenFromCookie(request, "refreshToken");
 
-        log.info("🔍 [JWT 필터] 요청 URI: {}", request.getRequestURI());
+        log.info("🔍 [JWT 필터] 요청 URI: {}", uri);
         log.info("🔑 accessToken 존재 여부: {}", accessToken != null);
         log.info("🔑 refreshToken 존재 여부: {}", refreshToken != null);
 
