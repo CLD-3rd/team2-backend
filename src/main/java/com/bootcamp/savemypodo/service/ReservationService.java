@@ -37,22 +37,16 @@ public class ReservationService {
 
 	public void createReservationWithLock(User user, Long mid, String seatName) {
 	    String lockKey = "lock:seat:" + mid + ":" + seatName;
-	    System.out.println("🧷 Redis Lock Key: " + lockKey);
-	    System.out.println("🔐 trying to acquire lock for seat: " + seatName);
-
 	    RLock lock = redissonClient.getLock(lockKey);
-	    System.out.println("🔐 got RLock object: " + lock);
 	    boolean available=false;
 
 	    try {
 	        available = lock.tryLock(5, 10, TimeUnit.SECONDS);
-	        System.out.println(Thread.currentThread().getName() + " gotLock = " + available);
-
 	        if (!available) {
 	            throw new ReservationException(ErrorCode.SEAT_LOCK_FAILED);
 	        }
 
-	        // 🔽 트랜잭션 안에서 실제 예약 처리
+	        //  실제 예약 처리
 	        doReservation(user, mid, seatName);
 
 	    } catch (InterruptedException e) {
