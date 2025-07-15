@@ -84,7 +84,7 @@ jobs:
 
     env:
       SHORT_SHA: ${{ needs.ci.outputs.short_sha }}
-      DEPLOY_BRANCH: test-backend
+      DEPLOY_BRANCH: dev
 
     steps:
       - name: Clone team2-infra repository
