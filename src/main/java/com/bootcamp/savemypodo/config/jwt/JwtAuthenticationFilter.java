@@ -38,7 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String uri = request.getRequestURI();
 
         // 여기 경로는 Jwt Filter 무시
-        if (uri.equals("/") || uri.startsWith("/login") || uri.equals("/api/musicals") || uri.equals("/actuator/prometheus") || uri.equals("/api/user/me")) {
+        if (uri.equals("/") || uri.startsWith("/login") || uri.equals("/api/musicals") || uri.equals("/actuator/prometheus")) {
             filterChain.doFilter(request, response); // 그냥 통과
             return;
         }
