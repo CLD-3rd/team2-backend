@@ -1,7 +1,6 @@
 package com.bootcamp.savemypodo.controller;
 
 import com.bootcamp.savemypodo.config.security.utils.CookieUtil;
-import com.bootcamp.savemypodo.dto.reservation.MyReservationResponse;
 import com.bootcamp.savemypodo.dto.user.UserResponse;
 import com.bootcamp.savemypodo.entity.User;
 import com.bootcamp.savemypodo.global.exception.ErrorCode;
@@ -21,8 +20,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -82,11 +79,4 @@ public class UserController {
 
         return ResponseEntity.ok(userResponse);
     }
-
-    @GetMapping("/my-reservations")
-    public ResponseEntity<List<MyReservationResponse>> getMyReservations(@AuthenticationPrincipal User user) {
-        List<MyReservationResponse> myReservations = reservationService.getMyReservationsByUser(user);
-        return ResponseEntity.ok(myReservations);
-    }
-
 }

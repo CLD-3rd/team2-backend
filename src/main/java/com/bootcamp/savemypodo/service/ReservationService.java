@@ -1,6 +1,5 @@
 package com.bootcamp.savemypodo.service;
 
-import com.bootcamp.savemypodo.dto.reservation.MyReservationResponse;
 import com.bootcamp.savemypodo.entity.Musical;
 import com.bootcamp.savemypodo.entity.Reservation;
 import com.bootcamp.savemypodo.entity.Seat;
@@ -18,10 +17,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -71,11 +68,6 @@ public class ReservationService {
             log.warn("Redis 접근 불가 – 캐시 업데이트 생략(createReservation): {}", e.toString());
         }
 
-    }
-
-    public List<MyReservationResponse> getMyReservationsByUser(User user) {
-        List<Reservation> reservations = reservationRepository.findAllByUser(user);
-        return reservations.stream().map(MyReservationResponse::fromEntity).collect(Collectors.toList());
     }
 
     @Transactional
