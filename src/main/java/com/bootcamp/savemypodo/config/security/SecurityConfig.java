@@ -30,7 +30,7 @@ public class SecurityConfig {
     private String frontendUrl;
 
     private final String[] allowUrls = {
-            "/", "/favicon.ico", "/actuator/**", "/api/auth/**", "/login/**", "/error", "/oauth/**"
+            "/", "/favicon.ico", "/actuator/**", "/api/auth/**", "/error", "/oauth/**"
     };
 
     @Bean
