@@ -1,5 +1,8 @@
-package com.bootcamp.savemypodo.config;
+package com.bootcamp.savemypodo.config.redis;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -7,19 +10,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
-
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
-
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 
 @Configuration
@@ -68,7 +60,7 @@ public class RedisConfig {
 
         return template;
     }*/
-    
+
     // 공연, 좌석 캐싱 용 (Object 기반)
     @Bean
     public RedisTemplate<String, Object> objectRedisTemplate() {
@@ -76,11 +68,11 @@ public class RedisConfig {
         ObjectMapper om = new ObjectMapper();
         om.registerModule(new JavaTimeModule());
         om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        
+
         // 2) 이 ObjectMapper를 사용하는 Redis Serializer 생성
         Jackson2JsonRedisSerializer<Object> ser =
                 new Jackson2JsonRedisSerializer<>(Object.class);
-            ser.setObjectMapper(om);
+        ser.setObjectMapper(om);
 
         // 3) RedisTemplate에 Serializer 장착
         RedisTemplate<String, Object> template = new RedisTemplate<>();
@@ -93,5 +85,5 @@ public class RedisConfig {
 
         return template;
     }
-    
+
 }

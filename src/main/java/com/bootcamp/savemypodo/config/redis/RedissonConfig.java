@@ -1,4 +1,4 @@
-package com.bootcamp.savemypodo.config;
+package com.bootcamp.savemypodo.config.redis;
 
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
