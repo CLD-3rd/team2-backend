@@ -15,7 +15,7 @@ import java.io.IOException;
 @Slf4j
 public class OAuth2FailureHandler implements AuthenticationFailureHandler {
 
-    @Value("${app.base-url}")
+    @Value("${frontend.url}")
     private String baseUrl;
 
     @Override
