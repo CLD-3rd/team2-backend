@@ -1,5 +1,6 @@
 package com.bootcamp.savemypodo.controller;
 
+import com.bootcamp.savemypodo.config.security.utils.CookieUtil;
 import com.bootcamp.savemypodo.dto.reservation.MyReservationResponse;
 import com.bootcamp.savemypodo.dto.user.UserResponse;
 import com.bootcamp.savemypodo.entity.User;
@@ -32,6 +33,7 @@ public class UserController {
     private final RedisRefreshTokenService redisRefreshTokenService;
     private final ReservationService reservationService;
     private final RedisMusicalService redisMusicalService;
+    private final CookieUtil cookieUtil;
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@AuthenticationPrincipal User user,
@@ -47,24 +49,12 @@ public class UserController {
 
 
         // 2. 클라이언트 쿠키 삭제 (Set-Cookie로 빈 값 전달)
-        Cookie accessTokenCookie = new Cookie("accessToken", null);
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(0); // 즉시 만료
-
-        Cookie refreshTokenCookie = new Cookie("refreshToken", null);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(0); // 즉시 만료
-
-        Cookie jsessionidCookie = new Cookie("JSESSIONID", null);
-        jsessionidCookie.setHttpOnly(true);
-        jsessionidCookie.setPath("/");
-        jsessionidCookie.setMaxAge(0); // 즉시 만료
+        Cookie accessTokenCookie = cookieUtil.deleteCookie("accessToken");
+        Cookie refreshTokenCookie = cookieUtil.deleteCookie("refreshToken");
+        Cookie jsessionidCookie = cookieUtil.deleteCookie("jsessionid");
 
         response.addCookie(accessTokenCookie);
         response.addCookie(refreshTokenCookie);
-
         response.addCookie(jsessionidCookie);
 
         // 4. 세션 무효화

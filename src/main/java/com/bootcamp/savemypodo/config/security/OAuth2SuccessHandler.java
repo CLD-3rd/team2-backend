@@ -1,6 +1,7 @@
 package com.bootcamp.savemypodo.config.security;
 
 import com.bootcamp.savemypodo.config.jwt.JwtTokenProvider;
+import com.bootcamp.savemypodo.config.security.utils.CookieUtil;
 import com.bootcamp.savemypodo.entity.CustomOAuth2User;
 import com.bootcamp.savemypodo.entity.User;
 import com.bootcamp.savemypodo.global.exception.ErrorCode;
@@ -28,6 +29,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
     private final RedisRefreshTokenService redisRefreshTokenService;
+    private final CookieUtil cookieUtil;
 
     @Value("${frontend.url}")
     private String frontendUrl;
@@ -54,27 +56,14 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         setCookiesForProduction(response, accessToken, refreshToken);
         log.info("✅ [OAuth2 Success] Token 전송 완료");
-        
+
         // ✅ 리디렉션
         response.sendRedirect(frontendUrl); // 프론트 주소로 redirect (ex. http://localhost:3000)
     }
 
     private void setCookiesForProduction(HttpServletResponse response, String accessToken, String refreshToken) {
-        Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
-        accessTokenCookie.setSecure(true); // HTTPS only
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setMaxAge((int) (jwtTokenProvider.getAccessTokenValidity() / 1000));
-        accessTokenCookie.setDomain(".savemypodo.shop"); // 하위 도메인까지 허용
-        accessTokenCookie.setAttribute("SameSite", "None"); // 크로스 도메인 허용
-
-        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
-        refreshTokenCookie.setSecure(true);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setMaxAge((int) (jwtTokenProvider.getRefreshTokenValidity() / 1000));
-        refreshTokenCookie.setDomain(".savemypodo.shop");
-        refreshTokenCookie.setAttribute("SameSite", "None");
+        Cookie accessTokenCookie = cookieUtil.createCookie("accessToken", accessToken);
+        Cookie refreshTokenCookie = cookieUtil.createCookie("refreshToken", refreshToken);
 
         response.addCookie(accessTokenCookie);
         response.addCookie(refreshTokenCookie);

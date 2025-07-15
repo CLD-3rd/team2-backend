@@ -1,5 +1,6 @@
 package com.bootcamp.savemypodo.config.jwt;
 
+import com.bootcamp.savemypodo.config.security.utils.CookieUtil;
 import com.bootcamp.savemypodo.entity.User;
 import com.bootcamp.savemypodo.global.exception.ErrorCode;
 import com.bootcamp.savemypodo.global.exception.UserException;
@@ -18,7 +19,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 @Slf4j
 @Component
@@ -27,13 +27,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
+    private final CookieUtil cookieUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
-        
+
+        log.info("🔍 [JWT 필터] 시작");
         String uri = request.getRequestURI();
         if (uri.equals("/") || uri.startsWith("/login") || uri.equals("/api/musicals") || uri.equals("/actuator/prometheus") || uri.equals("/api/user/me")) {
             filterChain.doFilter(request, response); // 그냥 통과
@@ -42,8 +44,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String accessToken = getTokenFromCookie(request, "accessToken");
-        String refreshToken = getTokenFromCookie(request, "refreshToken");
+        String accessToken = cookieUtil.getTokenFromCookie(request, "accessToken");
+        String refreshToken = cookieUtil.getTokenFromCookie(request, "refreshToken");
 
         log.info("🔍 [JWT 필터] 요청 URI: {}", request.getRequestURI());
         log.info("🔑 accessToken 존재 여부: {}", accessToken != null);
@@ -81,10 +83,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 // 새로운 Access Token 발급
                 String newAccessToken = jwtTokenProvider.createAccessToken(user);
 
-                Cookie newAccessTokenCookie = new Cookie("accessToken", newAccessToken);
-                newAccessTokenCookie.setHttpOnly(true);
-                newAccessTokenCookie.setPath("/");
-                newAccessTokenCookie.setMaxAge((int) (jwtTokenProvider.getAccessTokenValidity() / 1000));
+                Cookie newAccessTokenCookie = cookieUtil.createCookie("accessToken", newAccessToken);
+
                 response.addCookie(newAccessTokenCookie);
 
                 setAuthenticationFromAccessToken(newAccessToken, request);
@@ -105,14 +105,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private String getTokenFromCookie(HttpServletRequest request, String name) {
-        if (request.getCookies() == null) return null;
-        return Arrays.stream(request.getCookies())
-                .filter(c -> c.getName().equals(name))
-                .findFirst()
-                .map(Cookie::getValue)
-                .orElse(null);
-    }
 
     private void setAuthenticationFromAccessToken(String token, HttpServletRequest request) {
         String email = jwtTokenProvider.getEmailFromToken(token);
