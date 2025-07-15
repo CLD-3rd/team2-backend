@@ -67,7 +67,7 @@ public class PerformanceTestDummyDataSetup {
         for (int row = 0; row < numRows; row++) {
             char rowChar = (char) ('A' + row);
             for (int col = 1; col <= numCols; col++) {
-                String seatName = String.valueOf(rowChar + col);
+                String seatName = String.valueOf(rowChar) + col;
                 Seat seat = Seat.builder()
                         .musical(musical)
                         .seatName(seatName)

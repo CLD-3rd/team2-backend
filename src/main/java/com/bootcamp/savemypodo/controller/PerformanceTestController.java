@@ -1,5 +1,6 @@
 package com.bootcamp.savemypodo.controller;
 
+import com.bootcamp.savemypodo.dto.seat.SeatResponse;
 import com.bootcamp.savemypodo.dto.musical.MusicalResponse;
 import com.bootcamp.savemypodo.entity.Seat;
 import com.bootcamp.savemypodo.service.PerformanceTestService;
@@ -40,13 +41,13 @@ public class PerformanceTestController {
 
     // 4. 공연 좌석 캐시 조회
     @GetMapping("/seats/{musicalId}/cached")
-    public List<Seat> getSeatsWithCache(@PathVariable Long musicalId) {
+    public SeatResponse getSeatsWithCache(@PathVariable Long musicalId) {
         return service.getSeatsWithCache(musicalId);
     }
 
     // 5. 공연 좌석 DB 조회
     @GetMapping("/seats/{musicalId}/db")
-    public List<Seat> getSeatsFromDB(@PathVariable Long musicalId) {
+    public SeatResponse getSeatsFromDB(@PathVariable Long musicalId) {
         return service.getSeatsFromDB(musicalId);
     }
 }

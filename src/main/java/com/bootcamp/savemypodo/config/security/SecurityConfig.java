@@ -56,6 +56,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/login", "/api/musicals", "/actuator/prometheus").permitAll()
+                        .requestMatchers("/api/test/performance/**").permitAll() 
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/user/**", "/api/reservations/**", "/api/musicals/**").hasRole("USER")
                         .anyRequest().authenticated()
