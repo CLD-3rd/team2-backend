@@ -109,7 +109,14 @@
 			<artifactId>redisson-spring-boot-starter</artifactId>
 			<version>3.27.2</version> <!-- 최신 안정 버전 기준 -->
 		</dependency>
-
+    <dependency>
+  		<groupId>org.springframework.boot</groupId>
+ 			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+  			<groupId>io.micrometer</groupId>
+  			<artifactId>micrometer-registry-prometheus</artifactId>
+		</dependency>
 	</dependencies>
 
 

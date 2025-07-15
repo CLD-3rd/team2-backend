@@ -1,18 +1,16 @@
-package com.bootcamp.savemypodo.service;
+package com.bootcamp.savemypodo.service.auth;
 
 import com.bootcamp.savemypodo.config.jwt.JwtTokenProvider;
+import com.bootcamp.savemypodo.config.security.utils.CookieUtil;
 import com.bootcamp.savemypodo.entity.User;
 import com.bootcamp.savemypodo.global.exception.ErrorCode;
 import com.bootcamp.savemypodo.global.exception.UserException;
 import com.bootcamp.savemypodo.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.util.Arrays;
 
 @Service
 @RequiredArgsConstructor
@@ -21,10 +19,11 @@ public class AuthService {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
+    private final CookieUtil cookieUtil;
 
     public Cookie generateRefreshToken(HttpServletRequest request) {
 
-        String refreshToken = getTokenFromCookie(request, "refreshToken");
+        String refreshToken = cookieUtil.getTokenFromCookie(request, "refreshToken");
 
         if (refreshToken == null) {
             throw new UserException(ErrorCode.REFRESH_TOKEN_NOT_FOUND);
@@ -45,21 +44,8 @@ public class AuthService {
         // 🔄 새 AccessToken 발급
         String newAccessToken = jwtTokenProvider.createAccessToken(user);
 
-        Cookie accessTokenCookie = new Cookie("accessToken", newAccessToken);
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge((int) (jwtTokenProvider.getAccessTokenValidity() / 1000));
+        Cookie accessTokenCookie = cookieUtil.createCookie("accessToken", newAccessToken);
 
         return accessTokenCookie;
-    }
-
-    private String getTokenFromCookie(HttpServletRequest request, String name) {
-        if (request.getCookies() == null) return null;
-
-        return Arrays.stream(request.getCookies())
-                .filter(c -> c.getName().equals(name))
-                .findFirst()
-                .map(Cookie::getValue)
-                .orElse(null);
     }
 }

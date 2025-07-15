@@ -1,8 +1,8 @@
-package com.bootcamp.savemypodo.service;
+package com.bootcamp.savemypodo.service.auth;
 
 import com.bootcamp.savemypodo.entity.CustomOAuth2User;
-import com.bootcamp.savemypodo.global.enums.Provider;
 import com.bootcamp.savemypodo.entity.User;
+import com.bootcamp.savemypodo.global.enums.Provider;
 import com.bootcamp.savemypodo.global.enums.Role;
 import com.bootcamp.savemypodo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

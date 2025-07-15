@@ -11,11 +11,13 @@ import com.bootcamp.savemypodo.global.exception.ReservationException;
 import com.bootcamp.savemypodo.repository.MusicalRepository;
 import com.bootcamp.savemypodo.repository.ReservationRepository;
 import com.bootcamp.savemypodo.repository.SeatRepository;
+import com.bootcamp.savemypodo.service.redis.RedisMusicalService;
+import com.bootcamp.savemypodo.service.redis.RedisSeatService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +26,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
@@ -119,4 +122,5 @@ public class ReservationService {
 		redisSeatService.cacheSeatsForMusicalIfHot(musicalId);
 
 	}
+
 }

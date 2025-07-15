@@ -1,14 +1,18 @@
 package com.bootcamp.savemypodo.controller;
 
+import com.bootcamp.savemypodo.config.security.utils.CookieUtil;
 import com.bootcamp.savemypodo.dto.reservation.MyReservationResponse;
 import com.bootcamp.savemypodo.dto.user.UserResponse;
 import com.bootcamp.savemypodo.entity.User;
-import com.bootcamp.savemypodo.repository.UserRepository;
-import com.bootcamp.savemypodo.service.RedisMusicalService;
-import com.bootcamp.savemypodo.service.RedisRefreshTokenService;
+import com.bootcamp.savemypodo.global.exception.ErrorCode;
+import com.bootcamp.savemypodo.global.exception.UserException;
 import com.bootcamp.savemypodo.service.ReservationService;
+import com.bootcamp.savemypodo.service.redis.RedisMusicalService;
+import com.bootcamp.savemypodo.service.redis.RedisRefreshTokenService;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +21,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 
@@ -31,6 +33,7 @@ public class UserController {
     private final RedisRefreshTokenService redisRefreshTokenService;
     private final ReservationService reservationService;
     private final RedisMusicalService redisMusicalService;
+    private final CookieUtil cookieUtil;
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@AuthenticationPrincipal User user,
@@ -40,30 +43,18 @@ public class UserController {
         // 1. Redis에서 RefreshToken 삭제
         redisRefreshTokenService.deleteRefreshToken(user.getId().toString());
         log.info("[Logout] Redis에서 RefreshToken 삭제 완료: userId={}", user.getId());
-        
+
         // 로그아웃시 캐싱 수정
         redisMusicalService.updateOrRefreshCache(null, null, null, false);
 
-        
+
         // 2. 클라이언트 쿠키 삭제 (Set-Cookie로 빈 값 전달)
-        Cookie accessTokenCookie = new Cookie("accessToken", null);
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(0); // 즉시 만료
-
-        Cookie refreshTokenCookie = new Cookie("refreshToken", null);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(0); // 즉시 만료
-
-        Cookie jsessionidCookie = new Cookie("JSESSIONID", null);
-        jsessionidCookie.setHttpOnly(true);
-        jsessionidCookie.setPath("/");
-        jsessionidCookie.setMaxAge(0); // 즉시 만료
+        Cookie accessTokenCookie = cookieUtil.deleteCookie("accessToken");
+        Cookie refreshTokenCookie = cookieUtil.deleteCookie("refreshToken");
+        Cookie jsessionidCookie = cookieUtil.deleteCookie("jsessionid");
 
         response.addCookie(accessTokenCookie);
         response.addCookie(refreshTokenCookie);
-
         response.addCookie(jsessionidCookie);
 
         // 4. 세션 무효화
@@ -77,8 +68,19 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public UserResponse getMyInfo(@AuthenticationPrincipal User user) {
-        return new UserResponse(user.getEmail(), user.getNickname(), user.getRole().name());
+    public ResponseEntity<UserResponse> getMyInfo(@AuthenticationPrincipal User user) {
+        if (user == null) {
+            log.warn("❌ [/api/me] 사용자가 존재하지 않음");
+            throw new UserException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        UserResponse userResponse = new UserResponse(
+                user.getEmail(),
+                user.getNickname(),
+                user.getRole().name()
+        );
+
+        return ResponseEntity.ok(userResponse);
     }
 
     @GetMapping("/my-reservations")
