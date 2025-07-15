@@ -5,6 +5,7 @@ import com.bootcamp.savemypodo.entity.User;
 import com.bootcamp.savemypodo.global.exception.ErrorCode;
 import com.bootcamp.savemypodo.global.exception.UserException;
 import com.bootcamp.savemypodo.repository.UserRepository;
+import com.bootcamp.savemypodo.service.redis.RedisRefreshTokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -28,6 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
     private final CookieUtil cookieUtil;
+    private final RedisRefreshTokenService redisRefreshTokenService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -69,7 +71,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
 
                 // Refresh Token 불일치
-                if (!refreshToken.equals(user.getRefreshToken())) {
+                if (!refreshToken.equals(redisRefreshTokenService.getRefreshToken(user.getId().toString()))) {
                     log.warn("❌ Refresh Token 불일치: {}", email);
                     throw new UserException(ErrorCode.REFRESH_TOKEN_MISMATCH);
                 }
