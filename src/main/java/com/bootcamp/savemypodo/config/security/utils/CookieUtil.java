@@ -30,7 +30,7 @@ public class CookieUtil {
         cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setMaxAge((int) (expirationTime / 1000));
-        cookie.setDomain(".savemypodo.shop"); // 하위 도메인까지 허용
+//        cookie.setDomain(".savemypodo.shop"); // 하위 도메인까지 허용
         cookie.setAttribute("SameSite", "None"); // CORS 허용
 
         return cookie;
