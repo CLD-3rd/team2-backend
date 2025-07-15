@@ -6,6 +6,7 @@ import com.bootcamp.savemypodo.entity.User;
 import com.bootcamp.savemypodo.global.exception.ErrorCode;
 import com.bootcamp.savemypodo.global.exception.UserException;
 import com.bootcamp.savemypodo.repository.UserRepository;
+import com.bootcamp.savemypodo.service.redis.RedisRefreshTokenService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
     private final CookieUtil cookieUtil;
+    private final RedisRefreshTokenService redisRefreshTokenService;
 
     public Cookie generateRefreshToken(HttpServletRequest request) {
 
@@ -37,15 +39,13 @@ public class AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
-        if (!refreshToken.equals(user.getRefreshToken())) {
+        if (!refreshToken.equals(redisRefreshTokenService.getRefreshToken(user.getId()))) {
             throw new UserException(ErrorCode.REFRESH_TOKEN_MISMATCH);
         }
 
         // 🔄 새 AccessToken 발급
         String newAccessToken = jwtTokenProvider.createAccessToken(user);
 
-        Cookie accessTokenCookie = cookieUtil.createCookie("accessToken", newAccessToken);
-
-        return accessTokenCookie;
+        return cookieUtil.createCookie("accessToken", newAccessToken);
     }
 }

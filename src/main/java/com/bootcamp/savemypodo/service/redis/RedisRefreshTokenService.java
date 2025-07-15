@@ -26,6 +26,7 @@ public class RedisRefreshTokenService {
 
     // 저장
     public void save(Long userId, String refreshToken) {
+        log.info("[Redis]: refreshToken 저장");
         long ttl = jwtTokenProvider.getRefreshTokenValidity(); // ms 단위
         try {
             redisTemplate.opsForValue().set(
@@ -34,13 +35,14 @@ public class RedisRefreshTokenService {
                     Duration.ofMillis(ttl)
             );
         } catch (Exception e) {
-            log.warn("Redis 접근 불가 – 리프레시 토큰 저장 생략: {}", e.toString());
+            log.warn("[Redis] 접근 불가 – 리프레시 토큰 저장 생략: {}", e.toString());
         }
+        log.info("[Redis]: refreshToken 저장 완");
     }
 
     // 조회
-    public String getRefreshToken(String userId) {
-        return redisTemplate.opsForValue().get("refreshToken:" + userId);
+    public String getRefreshToken(Long userId) {
+        return redisTemplate.opsForValue().get("refreshToken:" + userId.toString());
     }
 
     // 삭제

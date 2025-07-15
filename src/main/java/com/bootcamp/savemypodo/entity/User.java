@@ -40,16 +40,9 @@ public class User {
     @Column(nullable = false)
     private Role role; // 사용자 권한 (예: USER, ADMIN)
 
-    @Column(name = "refresh_token", columnDefinition = "TEXT")
-    private String refreshToken; // 리프레시 토큰
-
     // 유저 권한 설정 메소드
     public void authorizeUser() {
         this.role = Role.USER;
-    }
-
-    public void updateRefreshToken(String updateRefreshToken) {
-        this.refreshToken = updateRefreshToken;
     }
 }
 

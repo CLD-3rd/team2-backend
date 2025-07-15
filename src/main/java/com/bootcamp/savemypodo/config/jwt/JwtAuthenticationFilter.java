@@ -71,7 +71,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
 
                 // Refresh Token 불일치
-                if (!refreshToken.equals(redisRefreshTokenService.getRefreshToken(user.getId().toString()))) {
+                if (!refreshToken.equals(redisRefreshTokenService.getRefreshToken(user.getId()))) {
                     log.warn("❌ Refresh Token 불일치: {}", email);
                     throw new UserException(ErrorCode.REFRESH_TOKEN_MISMATCH);
                 }
