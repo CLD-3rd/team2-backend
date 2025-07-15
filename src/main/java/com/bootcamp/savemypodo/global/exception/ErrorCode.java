@@ -23,7 +23,10 @@ public enum ErrorCode {
     INVALID_SEAT_ROW(HttpStatus.BAD_REQUEST, "좌석 행 정보가 올바르지 않습니다. (A~J)"),
     INVALID_SEAT_COLUMN(HttpStatus.BAD_REQUEST, "좌석 열 정보가 유효하지 않습니다. (1~14)"),
     SEAT_ALREADY_RESERVED(HttpStatus.CONFLICT, "해당 좌석은 이미 예약되었습니다."),
-	ALREADY_RESERVED_MUSICAL(HttpStatus.CONFLICT, "해당 뮤지컬을 이미 예약하였습니다.");
+	ALREADY_RESERVED_MUSICAL(HttpStatus.CONFLICT, "해당 뮤지컬을 이미 예약하였습니다."),
+	SEAT_LOCK_FAILED(HttpStatus.CONFLICT,"좌석 예약 중 다른 사용자가 먼저 시도했습니다.");
+
+	
 
     // 📅 예약 관련 에러
 
