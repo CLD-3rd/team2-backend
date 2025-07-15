@@ -6,6 +6,7 @@ on:
       - dev
       - ci/*
       - cd/*
+      - fix/test/*
   workflow_dispatch:
 
 jobs:
@@ -83,7 +84,7 @@ jobs:
 
     env:
       SHORT_SHA: ${{ needs.ci.outputs.short_sha }}
-      DEPLOY_BRANCH: dev
+      DEPLOY_BRANCH: test-backend
 
     steps:
       - name: Clone team2-infra repository
