@@ -36,11 +36,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String uri = request.getRequestURI();
-        log.info("🔍 [JWT 필터] 시작: {}", uri);
-        if (uri.equals("/") || uri.startsWith("/login") || uri.equals("/api/musicals") || uri.equals("/actuator/prometheus") || uri.equals("/api/user/me")) {
+
+        // 여기 경로는 Jwt Filter 무시
+        if (uri.equals("/") || uri.startsWith("/login") || uri.equals("/api/musicals") || uri.equals("/actuator/prometheus")) {
             filterChain.doFilter(request, response); // 그냥 통과
-        /*if (uri.equals("/") || uri.startsWith("/login") || uri.equals("/api/musicals")) {
-        	filterChain.doFilter(request, response);*/
             return;
         }
 
@@ -48,8 +47,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String refreshToken = cookieUtil.getTokenFromCookie(request, "refreshToken");
 
         log.info("🔍 [JWT 필터] 요청 URI: {}", uri);
-        log.info("🔑 accessToken 존재 여부: {}", accessToken != null);
-        log.info("🔑 refreshToken 존재 여부: {}", refreshToken != null);
 
         try {
             if (accessToken != null && jwtTokenProvider.validateToken(accessToken)) {

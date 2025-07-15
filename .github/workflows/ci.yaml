@@ -6,6 +6,7 @@ on:
       - dev
       - ci/*
       - cd/*
+      - fix/test/*
   workflow_dispatch:
 
 jobs:

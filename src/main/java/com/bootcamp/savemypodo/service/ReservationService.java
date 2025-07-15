@@ -1,6 +1,5 @@
 package com.bootcamp.savemypodo.service;
 
-import com.bootcamp.savemypodo.dto.reservation.MyReservationResponse;
 import com.bootcamp.savemypodo.entity.Musical;
 import com.bootcamp.savemypodo.entity.Reservation;
 import com.bootcamp.savemypodo.entity.Seat;
@@ -20,7 +19,6 @@ import org.redisson.api.RedissonClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -90,12 +88,6 @@ public class ReservationService {
 	    redisSeatService.cacheSeatsForMusicalIfHot(mid);
 	}
 
-
-	public List<MyReservationResponse> getMyReservationsByUser(User user) {
-		List<Reservation> reservations = reservationRepository.findAllByUser(user);
-		return reservations.stream().map(MyReservationResponse::fromEntity).collect(Collectors.toList());
-	}
-
 	@Transactional
 	public void cancelReservation(Long userId, Long musicalId) {
 		// 1. 먼저 예약이 실제로 존재하는지 확인
@@ -122,5 +114,4 @@ public class ReservationService {
 		redisSeatService.cacheSeatsForMusicalIfHot(musicalId);
 
 	}
-
 }
